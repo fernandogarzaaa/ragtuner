@@ -35,6 +35,33 @@ def build_parser() -> argparse.ArgumentParser:
     gc.add_argument("--gold", required=True)
     gc.add_argument("--threshold", type=float, default=0.8)
     gc.add_argument("--json", action="store_true")
+    eg = sub.add_parser("evalgen", help="Generate the eval set for a corpus (synthetic + imported real queries)")
+    eg.add_argument("corpus_dir")
+    eg.add_argument("--name", default=None)
+    eg.add_argument("--parser", default="pymupdf-text", help="Parser whose block model the generator reads")
+    eg.add_argument("--n", type=int, default=100)
+    eg.add_argument("--generator", default="auto", help="auto | llm | heuristic")
+    eg.add_argument("--seed", type=int, default=0)
+    eg.add_argument("--table-fraction", type=float, default=0.25)
+    eg.add_argument("--real-financebench", default=None, help="FinanceBench rows JSONL for real questions")
+    eg.add_argument("--real-qa", default=None, help="JSONL of {question, answer} rows for real questions (weak gold)")
+    eg.add_argument("--cache", default=".ragtuner-cache")
+    eg.add_argument("--out", required=True)
+
+    tn = sub.add_parser("tune", help="Run the staged config search and write the report")
+    tn.add_argument("corpus_dir")
+    tn.add_argument("--name", default=None)
+    tn.add_argument("--evalset", required=True)
+    tn.add_argument("--out", required=True)
+    tn.add_argument("--cache", default=".ragtuner-cache")
+    tn.add_argument("--space", default="phase1", help="phase1 | smoke")
+    tn.add_argument("--parsers", default=None, help="Comma list to restrict parsers in the space")
+    tn.add_argument("--default", default=None, help="YAML of the frozen default config (else the built-in one)")
+    tn.add_argument("--mode", default="staged", help="staged | grid")
+    tn.add_argument("--with-grid", action="store_true", help="Also run the full grid and report regret")
+    tn.add_argument("--carry", type=int, default=2)
+    tn.add_argument("--gate", default=None, help="gate report JSON to embed in the report")
+    tn.add_argument("--note", action="append", default=[])
     del sp
     return p
 
@@ -50,6 +77,10 @@ def main(argv: list[str] | None = None) -> int:
             return _cmd_parse(args)
         if args.command == "gate":
             return _cmd_gate(args)
+        if args.command == "evalgen":
+            return _cmd_evalgen(args)
+        if args.command == "tune":
+            return _cmd_tune(args)
     except (ValueError, FileNotFoundError, KeyError) as e:
         print(f"ragtuner: error: {e}", file=sys.stderr)
         return 1
@@ -108,6 +139,35 @@ def _cmd_gate(args: argparse.Namespace) -> int:
             print(report.to_markdown())
         return 0
     return 1
+
+
+def _cmd_evalgen(args: argparse.Namespace) -> int:
+    from ragtuner.run import generate_evalset, load_corpus
+
+    corpus = load_corpus(args.name or Path(args.corpus_dir).name, args.corpus_dir)
+    es = generate_evalset(corpus, parser=args.parser, n_synthetic=args.n, cache_root=Path(args.cache), seed=args.seed,
+                          generator=args.generator, real_financebench=Path(args.real_financebench) if args.real_financebench else None,
+                          real_qa=Path(args.real_qa) if args.real_qa else None, table_fraction=args.table_fraction)
+    es.save(args.out)
+    print(json.dumps(es.summary(), indent=2))
+    return 0
+
+
+def _cmd_tune(args: argparse.Namespace) -> int:
+    from ragtuner.config import RagConfig
+    from ragtuner.evalset import EvalSet
+    from ragtuner.run import load_corpus, space_preset, tune
+
+    corpus = load_corpus(args.name or Path(args.corpus_dir).name, args.corpus_dir)
+    es = EvalSet.load(args.evalset)
+    parsers = [p.strip() for p in args.parsers.split(",")] if args.parsers else None
+    space = space_preset(args.space, parsers=parsers)
+    default = RagConfig.from_yaml(args.default) if args.default else None
+    gate = json.loads(Path(args.gate).read_text()) if args.gate else None
+    paths = tune(corpus, es, out=Path(args.out), cache_root=Path(args.cache), space=space, default=default, mode=args.mode,
+                 with_grid=args.with_grid, carry=args.carry, gate=gate, notes=args.note)
+    print(json.dumps({k: str(v) for k, v in paths.items()}, indent=2))
+    return 0
 
 
 if __name__ == "__main__":
