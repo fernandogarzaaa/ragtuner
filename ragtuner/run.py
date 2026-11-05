@@ -129,6 +129,26 @@ def tune(corpus: Corpus, evalset: EvalSet, *, out: Path, cache_root: Path, space
     weak = sum(1 for q in evalset.real.questions if q.gold_quality == "weak")
     if weak:
         notes.append(f"{weak} real questions have weak (automatically located) gold spans.")
+    generation = None
+    if have_llm():
+        try:
+            from ragtuner.judge import Judge
+
+            judge = Judge()
+            finalists = [rep.winner, rep.default]
+            generation = {}
+            for r in finalists:
+                assert r.results is not None
+                hits = {qr.question_id: qr.hits for qr in r.results}
+                g = judge.run(r.config.key, evalset.real.questions or evalset.questions[:30], hits, k=r.config.top_k)
+                generation[r.config.key] = g.to_dict()
+                log(f"judge: {r.config.key} mean score {g.mean_score:.3f} over {len(g.judged)} questions ({g.errors} errors)")
+            (out / "generation.json").write_text(json.dumps(generation, indent=2))
+            notes.append("Generation quality (LLM judge) for winner and default is in generation.json.")
+        except Exception as e:  # noqa: BLE001
+            notes.append(f"Generation judge skipped: {type(e).__name__}: {e}")
+    else:
+        notes.append("Generation judge skipped: no Anthropic credentials in this environment.")
     paths = write_report(out, rep, evalset, fails, dfails, gate=gate, notes=notes, regret=reg)
     (out / "search.json").write_text(json.dumps(rep.to_dict(), indent=2, default=str))
     (out / "winner_results.json").write_text(json.dumps([r.to_dict() for r in rep.winner.results], indent=2, default=str))

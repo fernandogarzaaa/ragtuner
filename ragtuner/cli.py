@@ -62,6 +62,19 @@ def build_parser() -> argparse.ArgumentParser:
     tn.add_argument("--carry", type=int, default=2)
     tn.add_argument("--gate", default=None, help="gate report JSON to embed in the report")
     tn.add_argument("--note", action="append", default=[])
+    rp = sub.add_parser("replay", help="Rebuild the exported config and verify it reproduces the tuner's retrieval results")
+    rp.add_argument("corpus_dir")
+    rp.add_argument("--name", default=None)
+    rp.add_argument("--run", required=True, help="Tune output directory (best_config.yaml, eval_set.jsonl, winner_results.json)")
+    rp.add_argument("--cache", default=".ragtuner-cache")
+
+    qp = sub.add_parser("query", help="Retrieve with an exported config")
+    qp.add_argument("corpus_dir")
+    qp.add_argument("--name", default=None)
+    qp.add_argument("--config", required=True)
+    qp.add_argument("--cache", default=".ragtuner-cache")
+    qp.add_argument("query")
+    qp.add_argument("--k", type=int, default=None)
     del sp
     return p
 
@@ -81,6 +94,10 @@ def main(argv: list[str] | None = None) -> int:
             return _cmd_evalgen(args)
         if args.command == "tune":
             return _cmd_tune(args)
+        if args.command == "replay":
+            return _cmd_replay(args)
+        if args.command == "query":
+            return _cmd_query(args)
     except (ValueError, FileNotFoundError, KeyError) as e:
         print(f"ragtuner: error: {e}", file=sys.stderr)
         return 1
@@ -167,6 +184,45 @@ def _cmd_tune(args: argparse.Namespace) -> int:
     paths = tune(corpus, es, out=Path(args.out), cache_root=Path(args.cache), space=space, default=default, mode=args.mode,
                  with_grid=args.with_grid, carry=args.carry, gate=gate, notes=args.note)
     print(json.dumps({k: str(v) for k, v in paths.items()}, indent=2))
+    return 0
+
+
+def _cmd_replay(args: argparse.Namespace) -> int:
+    from ragtuner.config import RagConfig
+    from ragtuner.evalset import EvalSet
+    from ragtuner.pipeline import build_index
+    from ragtuner.run import load_corpus
+    from ragtuner.search import CANDIDATES
+
+    run = Path(args.run)
+    corpus = load_corpus(args.name or Path(args.corpus_dir).name, args.corpus_dir)
+    cfg = RagConfig.from_yaml(run / "best_config.yaml")
+    es = EvalSet.load(run / "eval_set.jsonl")
+    recorded = {r["question_id"]: [h["chunk_id"] for h in r["hits"]] for r in json.loads((run / "winner_results.json").read_text())}
+    index, stats = build_index(corpus, cfg, cache_root=args.cache)
+    mismatches = []
+    checked = 0
+    for q in es.questions:
+        if q.id not in recorded:
+            continue
+        got = [h.chunk_id for h in index.retrieve(q.question, k=CANDIDATES, candidates=CANDIDATES)][: len(recorded[q.id])]
+        checked += 1
+        if got != recorded[q.id]:
+            mismatches.append(q.id)
+    print(json.dumps({"config": cfg.key, "chunks": stats.chunks, "questions_checked": checked, "mismatches": len(mismatches),
+                      "identical": not mismatches, "mismatch_ids": mismatches[:10]}, indent=2))
+    return 0 if not mismatches else 3
+
+
+def _cmd_query(args: argparse.Namespace) -> int:
+    from ragtuner.config import RagConfig
+    from ragtuner.pipeline import build_index
+    from ragtuner.run import load_corpus
+
+    corpus = load_corpus(args.name or Path(args.corpus_dir).name, args.corpus_dir)
+    index, _ = build_index(corpus, RagConfig.from_yaml(args.config), cache_root=args.cache)
+    for h in index.retrieve(args.query, k=args.k):
+        print(f"{h.rank}. {h.doc_id} p{h.page} score={h.score:.3f} [{h.start}:{h.end}]\n   {h.text[:200].replace(chr(10), ' ')}")
     return 0
 
 

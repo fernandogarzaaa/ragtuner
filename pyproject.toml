@@ -8,10 +8,14 @@ license = {text = "Apache-2.0"}
 authors = [{name = "Fernando Garza"}]
 dependencies = [
   "pymupdf>=1.24",
+  "numpy>=1.26",
+  "pyyaml>=6",
   "better-rag @ git+https://github.com/fernandogarzaaa/better-rag",
 ]
 
 [project.optional-dependencies]
+local = ["sentence-transformers>=3"]
+llm = ["anthropic>=1"]
 docling = ["docling>=2.0"]
 dev = ["pytest>=8", "ruff>=0.6", "mypy>=1.10"]
 
