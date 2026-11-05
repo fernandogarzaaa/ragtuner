@@ -62,33 +62,51 @@ def import_financebench(jsonl: str | Path, docs: dict[str, ParsedDocument], *, n
     return EvalSet(name, questions, {"source": "financebench", "skipped": skipped})
 
 
-def import_qa_pairs(rows: Iterable[dict[str, Any]], docs: list[ParsedDocument], *, name: str = "real", min_score: float = 0.35) -> EvalSet:
-    """rows: {'question', 'answer', optional 'source'}. The gold span is the block whose
-    content tokens best overlap the ANSWER text (not the question, which would favor sparse
-    retrieval). Jaccard below min_score drops the row. Always gold_quality='weak'."""
-    blocks = [(d, b, set(tokenize(b.text))) for d in docs for b in d.blocks if len(b.text.split()) >= 15]
+def _windows(doc: ParsedDocument, max_blocks: int = 4, min_words: int = 40):
+    blocks = [b for b in doc.blocks if b.type.value != "heading"]
+    for i in range(len(blocks)):
+        for w in range(1, max_blocks + 1):
+            if i + w > len(blocks):
+                break
+            start, end = blocks[i].start, blocks[i + w - 1].end
+            text = doc.text[start:end]
+            if len(text.split()) < min_words:
+                continue
+            yield start, end, blocks[i], text
+
+
+def import_qa_pairs(rows: Iterable[dict[str, Any]], docs: list[ParsedDocument], *, name: str = "real", min_score: float = 0.5,
+                    min_shared: int = 12) -> EvalSet:
+    """rows: {'question', 'answer', optional 'source'}. The gold span is the window of 1 to 3
+    consecutive blocks (at least 40 words) that covers the most of the ANSWER's content
+    tokens (not the question's, which would favor sparse retrieval). Score is answer
+    coverage |answer & window| / |answer|; below min_score, or fewer than min_shared shared
+    tokens, the row is dropped. Always gold_quality='weak': a lexical match is evidence of
+    topical overlap, not proof that the window answers the question."""
+    windows = [(d, start, end, b, set(tokenize(text))) for d in docs for start, end, b, text in _windows(d)]
     questions: list[EvalQuestion] = []
     skipped = 0
     for row in rows:
         ans = set(tokenize(str(row.get("answer", ""))))
-        if len(ans) < 8:
+        if len(ans) < min_shared:
             skipped += 1
             continue
-        best, best_s = None, 0.0
-        for d, b, toks in blocks:
-            if not toks:
+        best, best_s, best_shared = None, 0.0, 0
+        for d, start, end, b, toks in windows:
+            shared = len(ans & toks)
+            if shared < min_shared:
                 continue
-            s = len(ans & toks) / len(ans | toks)
-            if s > best_s:
-                best, best_s = (d, b), s
+            s = shared / len(ans)
+            if (s, shared) > (best_s, best_shared):
+                best, best_s, best_shared = (d, start, end, b), s, shared
         if best is None or best_s < min_score:
             skipped += 1
             continue
-        d, b = best
-        span = GoldSpan(d.id, b.start, b.end, page=b.page, block_type=b.type.value, block_id=b.id)
+        d, start, end, b = best
+        span = GoldSpan(d.id, start, end, page=b.page, block_type=b.type.value, block_id=b.id)
         questions.append(EvalQuestion(
             id=make_id("real", row["question"]), question=row["question"], spans=(span,), answer=str(row.get("answer", "")),
-            source="real", question_type="factual", lexical_overlap=round(lexical_overlap(row["question"], b.text), 3),
-            gold_quality="weak", metadata={"match_jaccard": round(best_s, 3), "origin": row.get("source")},
+            source="real", question_type="factual", lexical_overlap=round(lexical_overlap(row["question"], d.text[start:end]), 3),
+            gold_quality="weak", metadata={"match_overlap": round(best_s, 3), "shared_tokens": best_shared, "origin": row.get("source")},
         ))
     return EvalSet(name, questions, {"source": "qa-pairs", "skipped": skipped})

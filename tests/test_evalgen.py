@@ -110,7 +110,7 @@ def test_qa_pairs_importer_uses_answer_not_question(tmp_path):
     doc = make_doc(tmp_path)
     rows = [{"question": "How fast do you deliver?", "answer": "Orders ship within two business days from the Ohio warehouse and expedited shipping costs twenty dollars more per order."},
             {"question": "Do you sell cars?", "answer": "No."}]
-    es = import_qa_pairs(rows, [doc], min_score=0.3)
+    es = import_qa_pairs(rows, [doc], min_score=0.4, min_shared=5)
     assert len(es.questions) == 1
     q = es.questions[0]
     assert q.gold_quality == "weak" and "Ohio" in doc.text[q.spans[0].start:q.spans[0].end]
