@@ -10,7 +10,7 @@ dependencies = [
   "pymupdf>=1.24",
   "numpy>=1.26",
   "pyyaml>=6",
-  "better-rag @ git+https://github.com/fernandogarzaaa/better-rag",
+  "better-rag @ https://github.com/fernandogarzaaa/better-rag/archive/19e3c31758b9ada0fe676a01b1f1dbb21c34c19f.tar.gz",
 ]
 
 [project.optional-dependencies]

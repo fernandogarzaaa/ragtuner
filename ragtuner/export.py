@@ -19,7 +19,10 @@ from typing import Any
 
 from ragtuner.config import RagConfig
 
-_DOCKERFILE = """FROM python:3.12-slim
+_DOCKERFILE = """# Override the base when Docker Hub rate-limits you, e.g.
+#   --build-arg BASE_IMAGE=public.ecr.aws/docker/library/python:3.12-slim
+ARG BASE_IMAGE=python:3.12-slim
+FROM ${BASE_IMAGE}
 WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
@@ -38,7 +41,8 @@ def _pin(pkg: str) -> str | None:
 
 
 def requirements_for(config: RagConfig, commit: str | None) -> list[str]:
-    src = "git+https://github.com/fernandogarzaaa/ragtuner" + (f"@{commit}" if commit else "")
+    # an archive URL pinned to the tuning commit: reproducible, and needs no git in the image
+    src = f"https://github.com/fernandogarzaaa/ragtuner/archive/{commit or 'main'}.tar.gz"
     reqs = [f"ragtuner @ {src}"]
     pkgs = ["pymupdf", "numpy", "pyyaml"]
     if config.parser == "docling":
@@ -104,8 +108,11 @@ ragtuner monitor --log queries.jsonl --run . --corpus /path/to/corpus
     return {"bundle": str(out), "config": cfg.key, "requirements": reqs}
 
 
-def verify_bundle(bundle: str | Path, corpus_dir: str | Path, *, cache_root: str | Path = ".ragtuner-cache", k: int = 10) -> dict[str, Any]:
-    """Serve the bundle's config over HTTP on an ephemeral port and replay the eval set."""
+def verify_bundle(bundle: str | Path, corpus_dir: str | Path | None = None, *, cache_root: str | Path = ".ragtuner-cache", k: int = 10,
+                  url: str | None = None) -> dict[str, Any]:
+    """Replay the bundle's eval set over HTTP and compare top-k chunk ids with the tuner's
+    record. With `url`, check a running deployment (a container, a server elsewhere);
+    otherwise serve the bundle locally on an ephemeral port."""
     from ragtuner.evalset import EvalSet
     from ragtuner.serve.http import make_server
     from ragtuner.serve.runtime import Runtime
@@ -113,16 +120,25 @@ def verify_bundle(bundle: str | Path, corpus_dir: str | Path, *, cache_root: str
     b = Path(bundle)
     recorded = {r["question_id"]: [h["chunk_id"] for h in r["hits"]][:k] for r in json.loads((b / "winner_results.json").read_text())}
     es = EvalSet.load(b / "eval_set.jsonl")
-    rt = Runtime(corpus_dir, b / "best_config.yaml", cache_root=cache_root)
-    server = make_server(rt, port=0)
-    port = server.server_address[1]
-    threading.Thread(target=server.serve_forever, daemon=True).start()
+    server = None
+    if url:
+        base = url.rstrip("/")
+        with urllib.request.urlopen(f"{base}/health", timeout=60) as resp:
+            served = json.load(resp)["config"]
+    else:
+        if corpus_dir is None:
+            raise ValueError("need corpus_dir or url")
+        rt = Runtime(corpus_dir, b / "best_config.yaml", cache_root=cache_root)
+        server = make_server(rt, port=0)
+        base = f"http://127.0.0.1:{server.server_address[1]}"
+        threading.Thread(target=server.serve_forever, daemon=True).start()
+        served = rt.config.key
     checked, mismatched = 0, []
     try:
         for q in es.questions:
             if q.id not in recorded:
                 continue
-            req = urllib.request.Request(f"http://127.0.0.1:{port}/search", data=json.dumps({"query": q.question, "k": k}).encode(),
+            req = urllib.request.Request(f"{base}/search", data=json.dumps({"query": q.question, "k": k}).encode(),
                                          headers={"Content-Type": "application/json"})
             with urllib.request.urlopen(req, timeout=120) as resp:
                 got = [h["chunk_id"] for h in json.load(resp)["hits"]]
@@ -130,6 +146,7 @@ def verify_bundle(bundle: str | Path, corpus_dir: str | Path, *, cache_root: str
             if got != recorded[q.id][: len(got)]:
                 mismatched.append(q.id)
     finally:
-        server.shutdown()
-    return {"config": rt.config.key, "checked": checked, "mismatched": len(mismatched), "identical": checked > 0 and not mismatched,
+        if server is not None:
+            server.shutdown()
+    return {"config": served, "checked": checked, "mismatched": len(mismatched), "identical": checked > 0 and not mismatched,
             "mismatch_ids": mismatched[:10]}

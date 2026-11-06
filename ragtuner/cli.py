@@ -113,6 +113,7 @@ def build_parser() -> argparse.ArgumentParser:
     ex.add_argument("--corpus", default=None)
     ex.add_argument("--cache", default=".ragtuner-cache")
     ex.add_argument("--verify", action="store_true")
+    ex.add_argument("--url", default=None, help="With --verify, check a running deployment at this base URL instead of serving locally")
 
     mo = sub.add_parser("monitor", help="Analyze the API query log against the tuning baseline and propose fixes")
     mo.add_argument("--log", required=True)
@@ -344,9 +345,9 @@ def _cmd_export(args: argparse.Namespace) -> int:
 
     info = build_bundle(args.run, args.out)
     if args.verify:
-        if not args.corpus:
-            raise ValueError("--verify needs --corpus")
-        info["verify"] = verify_bundle(args.out, args.corpus, cache_root=args.cache)
+        if not args.corpus and not args.url:
+            raise ValueError("--verify needs --corpus or --url")
+        info["verify"] = verify_bundle(args.out, args.corpus, cache_root=args.cache, url=args.url)
     print(json.dumps(info, indent=2))
     return 0 if not args.verify or info["verify"]["identical"] else 3
 
