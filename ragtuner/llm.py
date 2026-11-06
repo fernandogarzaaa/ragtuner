@@ -23,6 +23,10 @@ OPENROUTER_MODELS = {"claude-opus-5-5": "anthropic/claude-opus-5.5", "claude-son
 USAGE = {"calls": 0, "input_tokens": 0, "output_tokens": 0, "cost_usd": 0.0, "errors": 0}
 
 
+class QuotaExhausted(RuntimeError):
+    """A daily or credit quota is spent: retrying cannot help until it resets."""
+
+
 def provider() -> str | None:
     if os.environ.get("ANTHROPIC_API_KEY") or os.environ.get("ANTHROPIC_AUTH_TOKEN"):
         return "anthropic"
@@ -41,6 +45,13 @@ def _post_json(url: str, payload: dict, headers: dict, *, timeout: int = 300, re
             with urllib.request.urlopen(req, timeout=timeout) as resp:
                 return json.load(resp)
         except urllib.error.HTTPError as e:
+            body = ""
+            try:
+                body = e.read().decode("utf-8", "replace") if e.fp else ""
+            except Exception:  # noqa: BLE001
+                pass
+            if e.code == 402 or (e.code == 429 and ("per-day" in body or "per_day" in body or "credits" in body)):
+                raise QuotaExhausted(f"HTTP {e.code}: {body[:300]}") from e
             if e.code in (429, 500, 502, 503, 504) and attempt < retries:
                 retry_after = e.headers.get("Retry-After") if e.headers else None
                 wait = float(retry_after) if retry_after and retry_after.replace(".", "", 1).isdigit() else 2 ** (attempt + 1)

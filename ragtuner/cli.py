@@ -233,7 +233,7 @@ def _cmd_evalgen(args: argparse.Namespace) -> int:
                           generator=args.generator, real_financebench=Path(args.real_financebench) if args.real_financebench else None,
                           real_qa=Path(args.real_qa) if args.real_qa else None, table_fraction=args.table_fraction,
                           llm_model=args.llm_model, max_calls=args.max_calls, unanswerable_fraction=args.unanswerable_fraction,
-                          multihop_fraction=args.multihop_fraction)
+                          multihop_fraction=args.multihop_fraction, checkpoint=Path(args.out + ".partial"))
     es.save(args.out)
     print(json.dumps(es.summary(), indent=2))
     return 0

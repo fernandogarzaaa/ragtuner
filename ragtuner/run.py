@@ -54,7 +54,7 @@ def have_llm() -> bool:
 def generate_evalset(corpus: Corpus, *, parser: str, n_synthetic: int, cache_root: Path, seed: int = 0,
                      generator: str = "auto", real_financebench: Path | None = None, real_qa: Path | None = None,
                      table_fraction: float = 0.25, llm_model: str | None = None, max_calls: int | None = None,
-                     unanswerable_fraction: float = 0.1, multihop_fraction: float = 0.1) -> EvalSet:
+                     unanswerable_fraction: float = 0.1, multihop_fraction: float = 0.1, checkpoint: Path | None = None) -> EvalSet:
     """Synthetic questions come from the parsed block model of `parser` (independent of any
     chunker). Real questions are imported and held out."""
     cache = ParseCache(cache_root)
@@ -65,7 +65,7 @@ def generate_evalset(corpus: Corpus, *, parser: str, n_synthetic: int, cache_roo
         gen_name = "llm" if have_llm() else "heuristic"
     if gen_name == "llm":
         gen = LLMGenerator(seed=seed, table_fraction=table_fraction, model=llm_model, max_calls=max_calls,
-                           unanswerable_fraction=unanswerable_fraction, multihop_fraction=multihop_fraction)
+                           unanswerable_fraction=unanswerable_fraction, multihop_fraction=multihop_fraction, checkpoint=checkpoint)
     else:
         gen = HeuristicGenerator(seed=seed, table_fraction=table_fraction)
     synth = gen.generate(docs, n_synthetic, name=f"{corpus.name}-synthetic")

@@ -129,3 +129,32 @@ def test_llm_generator_respects_call_budget(tmp_path):
     gen = LLMGenerator(caller=fake, table_fraction=0.0, multihop_fraction=0.0, unanswerable_fraction=0.0, max_calls=1)
     es = gen.generate([doc], 5)
     assert len(calls) == 1 and es.metadata["budget_exhausted"] is True and len(es.questions) == 1
+
+
+def test_llm_generator_checkpoints_and_stops_on_quota(tmp_path):
+    from ragtuner.llm import QuotaExhausted
+
+    p = tmp_path / "three.md"
+    p.write_text("\n\n".join(f"Paragraph {i}: customers may return purchased items within 30 days for a full refund when the receipt "
+                               f"is included, and item {i} follows rule {i} for exchanges, store credit and shipping refunds." for i in range(3)))
+    doc = parse_file(p)
+    ck = tmp_path / "eval.partial"
+    state = {"n": 0}
+
+    def flaky(system, user):
+        state["n"] += 1
+        if state["n"] > 1:
+            raise QuotaExhausted("HTTP 429: free-models-per-day")
+        return json.dumps({"question": "How long is the return window for purchases?", "answer": "30 days",
+                           "evidence": "customers may return purchased items within 30 days for a full refund"})
+
+    gen = LLMGenerator(caller=flaky, table_fraction=0.0, multihop_fraction=0.0, unanswerable_fraction=0.5, checkpoint=ck)
+    es = gen.generate([doc], 2)
+    assert len(es.questions) == 1 and es.metadata["stopped"].startswith("quota exhausted") and state["n"] == 2
+    assert len(ck.read_text().splitlines()) == 1
+    # a rerun resumes from the checkpoint and only asks for what is missing
+    calls = []
+    gen2 = LLMGenerator(caller=lambda s, u: calls.append(1) or json.dumps({"question": "Is gift card shipping refundable?"}),
+                        table_fraction=0.0, multihop_fraction=0.0, unanswerable_fraction=0.5, checkpoint=ck)
+    es2 = gen2.generate([doc], 2)
+    assert es2.metadata["resumed"] == 1 and len(es2.questions) >= 1 and len(calls) <= 2

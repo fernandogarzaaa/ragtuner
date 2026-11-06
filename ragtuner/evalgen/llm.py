@@ -11,6 +11,7 @@ from __future__ import annotations
 import json
 import random
 import re
+from pathlib import Path
 from typing import Any, Callable
 
 from ragtuner.evalgen.common import (
@@ -22,6 +23,7 @@ from ragtuner.evalgen.common import (
     sample_blocks,
 )
 from ragtuner.evalset import EvalQuestion, EvalSet, GoldSpan
+from ragtuner.llm import QuotaExhausted
 from ragtuner.schema import Block, BlockType, ParsedDocument
 
 MODEL = "claude-opus-5-5"
@@ -81,10 +83,14 @@ class LLMGenerator:
 
     def __init__(self, caller: Caller | None = None, *, seed: int = 0, table_fraction: float = 0.25,
                  multihop_fraction: float = 0.1, unanswerable_fraction: float = 0.1, max_overlap: float = 0.5,
-                 paraphrase_rounds: int = 2, max_calls: int | None = None, model: str | None = None) -> None:
+                 paraphrase_rounds: int = 2, max_calls: int | None = None, model: str | None = None,
+                 checkpoint: str | Path | None = None) -> None:
         self.model = model or MODEL
         self.caller = caller or default_caller(self.model)
         self.max_calls = max_calls
+        self.stopped: str | None = None
+        # questions are appended here as they are made, and a rerun resumes from them
+        self.checkpoint = Path(checkpoint) if checkpoint else None
         self.seed = seed
         self.table_fraction = table_fraction
         self.multihop_fraction = multihop_fraction
@@ -95,33 +101,56 @@ class LLMGenerator:
         self.dropped: list[dict[str, Any]] = []
 
     def _call(self, system: str, user: str) -> dict[str, Any]:
-        if self.max_calls is not None and self.calls >= self.max_calls:
-            raise BudgetExhausted(f"call budget of {self.max_calls} reached")
+        if self.stopped or (self.max_calls is not None and self.calls >= self.max_calls):
+            raise BudgetExhausted(self.stopped or f"call budget of {self.max_calls} reached")
         self.calls += 1
-        return _json(self.caller(system, user))
+        try:
+            return _json(self.caller(system, user))
+        except QuotaExhausted as e:
+            self.stopped = f"quota exhausted: {e}"
+            raise BudgetExhausted(self.stopped) from e
 
     def _budget_left(self) -> bool:
-        return self.max_calls is None or self.calls < self.max_calls
+        return not self.stopped and (self.max_calls is None or self.calls < self.max_calls)
+
+    def _load_checkpoint(self) -> list[EvalQuestion]:
+        if not self.checkpoint or not self.checkpoint.exists():
+            return []
+        return [EvalQuestion.from_dict(json.loads(line)) for line in self.checkpoint.read_text().splitlines() if line.strip()]
+
+    def _save(self, q: EvalQuestion) -> None:
+        if self.checkpoint:
+            with self.checkpoint.open("a", encoding="utf-8") as f:
+                f.write(json.dumps(q.to_dict()) + "\n")
 
     def generate(self, docs: list[ParsedDocument], n: int, *, name: str = "synthetic") -> EvalSet:
         rng = random.Random(self.seed)
         n_un = int(round(n * self.unanswerable_fraction))
         n_mh = int(round(n * self.multihop_fraction))
         n_single = n - n_un - n_mh
-        questions: list[EvalQuestion] = []
+        questions: list[EvalQuestion] = self._load_checkpoint()
+        done = {q.metadata.get("source_block") for q in questions}
         blocks = sample_blocks(docs, n_single + n_un, seed=self.seed, table_fraction=self.table_fraction)
         for doc, block in blocks[:n_single]:
+            if block.id in done:
+                continue
             if not self._budget_left():
                 break
             q = self._single(doc, block)
             if q:
+                q.metadata["source_block"] = block.id
                 questions.append(q)
+                self._save(q)
         for doc, block in blocks[n_single : n_single + n_un]:
+            if block.id in done:
+                continue
             if not self._budget_left():
                 break
             q = self._unanswerable(doc, block)
             if q:
+                q.metadata["source_block"] = block.id
                 questions.append(q)
+                self._save(q)
         for doc, b1, b2 in _pairs(docs, n_mh, rng):
             if not self._budget_left():
                 break
@@ -129,7 +158,8 @@ class LLMGenerator:
             if q:
                 questions.append(q)
         return EvalSet(name, questions, {"generator": self.name, "model": self.model, "seed": self.seed, "calls": self.calls,
-                                         "dropped": len(self.dropped), "budget_exhausted": not self._budget_left()})
+                                         "dropped": len(self.dropped), "budget_exhausted": not self._budget_left(),
+                                         "stopped": self.stopped, "resumed": len(done - {None})})
 
     def _user(self, doc: ParsedDocument, block: Block) -> str:
         path = " > ".join(heading_path(doc, block)) or "(no heading)"
