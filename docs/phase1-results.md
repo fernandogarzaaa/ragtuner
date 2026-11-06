@@ -129,6 +129,38 @@ hybrid 0.317, dense 0.312, BM25 with reranker 0.296, BETTER-RAG with reranker 0.
 BM25 0.217, BETTER-RAG 0.179. The real questions reward the opposite of what the
 heuristic set rewards.
 
+## Query rewriting on real questions
+
+`runs/prf_check.json`. Each of the 8 configs with the best real recall@5 on FinanceBench was
+scored with and without pseudo-relevance feedback on the same 30 held-out questions.
+
+| result | value |
+|---|---|
+| mean change in real recall@5 | -0.062 |
+| configs improved / unchanged / worse | 0 / 2 / 6 |
+| largest drop | 0.367 to 0.200 (structure, bge-small, dense) |
+
+When the first BM25 pass misses, as it does for paraphrased analyst questions, the
+expansion terms come from the wrong passages and pull retrieval further off. PRF stays
+in the `phase2` space so the search can reject it per corpus; the LLM rewrite arm is
+built and tested offline but was not run live (no paid LLM credit).
+
+## Deployment, verified end to end
+
+| check | result |
+|---|---|
+| Bundle served in-process, IRS winner (Docling), eval replayed over HTTP | 100 of 100 questions, identical top-10 chunk ids |
+| Bundle built with its own Dockerfile, run as a container, replayed with `export --verify --url` | 39 of 39 identical (PyMuPDF config; Docling image below) |
+| Official MCP Python SDK client against `ragtuner mcp` on the IRS index | initialize, tools/list, search and ask all succeed |
+| Monitor on the container's real query log | drift and low-confidence signals computed; freshness clean |
+
+Problems the Docker build exposed, all fixed: Docker Hub returned 429 to anonymous pulls
+(the base image is now a build argument), the slim image has no git (requirements now
+install pinned archives, which also pinned BETTER-RAG to a commit instead of main), and
+CPU-only PyTorch pins need PyTorch's own index (now written into requirements). This
+sandbox intercepts TLS, so the test build used a local base image that trusts the
+sandbox CA; the bundle's Dockerfile itself is unchanged by that.
+
 ## Conclusions
 
 1. **The hypothesis failed where it could be tested, and the cause is identified.** The
@@ -159,8 +191,11 @@ heuristic set rewards.
 
 ## Not done, and why
 
-- Claude question generation and the generation judge were not run live: no Anthropic
-  credentials in this environment. Both have offline tests with fake callers.
-- The OpenAI embedder arm was not run: no key. The default ran with bge-small instead.
+- Claude question generation, the judge, and LLM query rewriting were not run live. No
+  Anthropic key is available here, and the OpenRouter key provided is on the free tier
+  with a balance too small for one Claude request. All three have offline tests.
+- The OpenAI embedding arm works through OpenRouter (verified with a live call), but
+  embedding FinanceBench costs about $0.26, above the free balance, so the frozen default
+  still ran with bge-small.
 - IRS has no real set: lexical matching of FAQ answers to the publication produced wrong
   gold spans on inspection, so those questions were dropped instead of reported.
