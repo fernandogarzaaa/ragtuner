@@ -26,3 +26,13 @@ def test_parse_cache_hits_on_same_bytes(sample_pdf: Path, tmp_path: Path):
     doc2, hit2 = cache.parse(sample_pdf, "pymupdf-text")
     assert (hit1, hit2) == (False, True)
     assert doc1 == doc2
+
+
+def test_parse_cache_returns_requested_id_on_hit(sample_pdf, tmp_path):
+    cache = ParseCache(tmp_path / "cache")
+    first, _ = cache.parse(sample_pdf, "pymupdf-text")  # default id
+    named, hit = cache.parse(sample_pdf, "pymupdf-text", doc_id="ACME_2024_10K")
+    assert hit and named.id == "ACME_2024_10K" and named.blocks[0].id == "ACME_2024_10K:b0"
+    named.validate()
+    again, hit2 = cache.parse(sample_pdf, "pymupdf-text")
+    assert hit2 and again.id == first.id

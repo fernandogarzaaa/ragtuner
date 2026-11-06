@@ -14,6 +14,13 @@ def test_covers_requires_half_the_span_in_the_same_doc():
     assert covers(hit(1, 0, 150), span)          # 50 chars of 100
     assert not covers(hit(1, 0, 149), span)      # 49 chars
     assert not covers(hit(1, 100, 200, doc="e"), span)
+    # a small chunk lying inside a page-sized span is relevant; one barely touching it is not
+    page = GoldSpan("d", 0, 5000)  # longer than LONG_SPAN_CHARS
+    assert covers(hit(1, 1000, 1400), page)
+    assert not covers(hit(1, 4900, 5300), page)
+    # a table-sized span keeps the strict rule: a chunk inside only part of it does not count
+    table = GoldSpan("d", 0, 1000)
+    assert not covers(hit(1, 100, 400), table) and covers(hit(1, 0, 600), table)
 
 
 def test_question_metrics_single_and_multi_span():

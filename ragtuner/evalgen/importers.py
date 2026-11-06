@@ -8,10 +8,21 @@ import json
 from pathlib import Path
 from typing import Any, Iterable
 
-from ragtuner.evalgen.common import lexical_overlap, locate, make_id
+from ragtuner.evalgen.common import lexical_overlap, make_id
 from ragtuner.evalset import EvalQuestion, EvalSet, GoldSpan
 from ragtuner.index.bm25 import tokenize
 from ragtuner.schema import ParsedDocument
+
+
+def _dominant_block(doc: ParsedDocument, start: int, end: int):
+    """The block with the largest overlap with [start, end): a span that opens with a
+    statement title but is mostly a table is labeled a table."""
+    best, best_ov = None, 0
+    for b in doc.blocks:
+        ov = min(b.end, end) - max(b.start, start)
+        if ov > best_ov:
+            best, best_ov = b, ov
+    return best
 
 
 def _block_at(doc: ParsedDocument, pos: int):
@@ -21,8 +32,37 @@ def _block_at(doc: ParsedDocument, pos: int):
     return None
 
 
+def _page_window(doc: ParsedDocument, page: int | None, slack: int = 1) -> tuple[int, int] | None:
+    if page is None:
+        return None
+    blocks = [b for b in doc.blocks if b.page is not None and abs(b.page - page) <= slack]
+    if not blocks:
+        return None
+    return min(b.start for b in blocks), max(b.end for b in blocks)
+
+
+class _Slice:
+    def __init__(self, text: str) -> None:
+        self.text = text
+
+
+def _align(doc: ParsedDocument, snippet: str, within: tuple[int, int] | None) -> tuple[int, int, float] | None:
+    from ragtuner.align import Projector
+
+    lo, hi = within or (0, len(doc.text))
+    res = Projector(_Slice(doc.text[lo:hi])).project(snippet)  # type: ignore[arg-type]
+    if res is None:
+        return None
+    return lo + res[0], lo + res[1], res[2]
+
+
 def import_financebench(jsonl: str | Path, docs: dict[str, ParsedDocument], *, name: str = "financebench-real") -> EvalSet:
-    """docs maps FinanceBench doc_name (e.g. '3M_2018_10K') to its ParsedDocument."""
+    """docs maps FinanceBench doc_name (e.g. '3M_2018_10K') to its ParsedDocument.
+
+    FinanceBench evidence was extracted from the PDF by a different tool, so it is located
+    by alphanumeric token alignment (robust to table formatting), restricted to the cited
+    page +/- 1 when the parse records pages, and to the whole document otherwise.
+    Alignments with < 0.95 token overlap are marked gold_quality='weak'."""
     questions: list[EvalQuestion] = []
     skipped: list[dict[str, Any]] = []
     for line in Path(jsonl).read_text(encoding="utf-8").splitlines():
@@ -37,15 +77,16 @@ def import_financebench(jsonl: str | Path, docs: dict[str, ParsedDocument], *, n
         for ev in row.get("evidence", []):
             if ev.get("doc_name") and ev["doc_name"] != row["doc_name"]:
                 continue
-            loc = locate(doc, ev.get("evidence_text", ""), min_ratio=0.6)
             page = ev.get("evidence_page_num")
             page = int(page) + 1 if page is not None else None  # FinanceBench pages are 0-indexed
+            text = ev.get("evidence_text", "") or ""
+            loc = _align(doc, text, _page_window(doc, page)) or _align(doc, text, None)
             if loc is None and ev.get("evidence_text_full_page"):
-                loc = locate(doc, ev["evidence_text_full_page"], min_ratio=0.5)
+                loc = _align(doc, ev["evidence_text_full_page"], _page_window(doc, page))
             if loc is None:
                 continue
             start, end, q = loc
-            b = _block_at(doc, start)
+            b = _dominant_block(doc, start, end)
             if q < 0.95:
                 quality = "weak"
             spans.append(GoldSpan(doc.id, start, end, page=page, block_type=b.type.value if b else None, block_id=b.id if b else None))

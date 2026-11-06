@@ -37,13 +37,16 @@ class ParseCache:
         return p
 
     def parse(self, path: str | Path, parser: str, *, doc_id: str | None = None) -> tuple[ParsedDocument, bool]:
-        """Return (document, was_cache_hit)."""
+        """Return (document, was_cache_hit). The cache is keyed by content, not by id, so the
+        returned document always carries the id this call asks for (doc_id, or the default
+        stem-plus-hash id), whatever id it had when it was first parsed."""
         p = Path(path)
         backend = get_parser(parser)
         content_hash = hash_file(p)
+        want_id = doc_id or f"{p.stem}-{content_hash[:8]}"
         cached = self.get(backend.name, backend.version, content_hash)
         if cached is not None:
-            return cached, True
-        doc = backend.parse(p, doc_id=doc_id)
+            return cached.with_id(want_id), True
+        doc = backend.parse(p, doc_id=want_id)
         self.put(doc)
         return doc, False

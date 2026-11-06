@@ -19,7 +19,7 @@ from typing import Any
 
 from ragtuner.chunk import Chunk
 from ragtuner.evalset import EvalQuestion, GoldSpan
-from ragtuner.metrics import COVER_FRACTION, QuestionResult
+from ragtuner.metrics import COVER_FRACTION, QuestionResult, coverage
 
 STAGES = ("parse", "chunk", "deep", "rank")
 MIN_SUPPORT = 5
@@ -91,14 +91,14 @@ class FailureReport:
 
 
 def _span_text_present(span: GoldSpan, chunks_by_doc: dict[str, list[Chunk]], doc_text: str | None) -> tuple[bool, bool]:
-    """(any chunk overlaps the span at all, some chunk covers >= COVER_FRACTION)."""
+    """(any chunk overlaps the span at all, some chunk covers it under the metrics rule)."""
     any_overlap = False
     covered = False
     for c in chunks_by_doc.get(span.doc_id, []):
         overlap = min(c.end, span.end) - max(c.start, span.start)
         if overlap > 0:
             any_overlap = True
-            if overlap / max(span.length, 1) >= COVER_FRACTION:
+            if coverage(c.start, c.end, span) >= COVER_FRACTION:
                 covered = True
                 break
     return any_overlap, covered

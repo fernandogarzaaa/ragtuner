@@ -133,6 +133,15 @@ class ParsedDocument:
                 raise ValueError(f"block {b.id} text does not match its span")
             prev_end = b.end
 
+    def with_id(self, new_id: str) -> "ParsedDocument":
+        """Same content under another document id (block ids follow the document id)."""
+        if new_id == self.id:
+            return self
+        from dataclasses import replace
+
+        blocks = [replace(b, id=f"{new_id}:b{i}") for i, b in enumerate(self.blocks)]
+        return replace(self, id=new_id, blocks=blocks)
+
     def blocks_of(self, *types: BlockType) -> list[Block]:
         wanted = set(types)
         return [b for b in self.blocks if b.type in wanted]

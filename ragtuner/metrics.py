@@ -1,8 +1,13 @@
 """Retrieval metrics by span containment.
 
-A hit covers a gold span when the overlap between the hit's character range and the span
-is at least COVER_FRACTION of the span's length (same document). That is the only notion
-of relevance: it depends on offsets, not on chunk ids or index text.
+A hit covers a gold span when, in the same document, their character overlap is at least
+COVER_FRACTION of the span. For long spans (over LONG_SPAN_CHARS, about 250 words: the
+page-level evidence FinanceBench ships) the denominator is the shorter of span and chunk,
+so a chunk lying mostly inside the evidence also counts; otherwise page-sized evidence
+would be unreachable for small chunkers and the metric would reward big chunks by
+construction. Sentence- and table-sized spans keep the strict rule, so a table split
+across chunks still shows up as a chunking failure.
+Relevance depends on offsets only, never on chunk ids or index text.
 """
 
 from __future__ import annotations
@@ -15,13 +20,22 @@ from ragtuner.evalset import EvalQuestion, GoldSpan
 from ragtuner.pipeline import Hit
 
 COVER_FRACTION = 0.5
+LONG_SPAN_CHARS = 1500
+
+
+def coverage(start: int, end: int, span: GoldSpan) -> float:
+    """Fraction used by the relevance rule for a chunk [start, end) against a span."""
+    overlap = min(end, span.end) - max(start, span.start)
+    if overlap <= 0 or span.length <= 0:
+        return 0.0
+    denom = span.length if span.length <= LONG_SPAN_CHARS else min(span.length, max(end - start, 1))
+    return overlap / denom
 
 
 def covers(hit: Hit, span: GoldSpan, fraction: float = COVER_FRACTION) -> bool:
     if hit.doc_id != span.doc_id or span.length <= 0:
         return False
-    overlap = min(hit.end, span.end) - max(hit.start, span.start)
-    return overlap / span.length >= fraction
+    return coverage(hit.start, hit.end, span) >= fraction
 
 
 @dataclass
