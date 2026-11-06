@@ -68,6 +68,15 @@ def build_parser() -> argparse.ArgumentParser:
     rp.add_argument("--run", required=True, help="Tune output directory (best_config.yaml, eval_set.jsonl, winner_results.json)")
     rp.add_argument("--cache", default=".ragtuner-cache")
 
+    cv = sub.add_parser("crossval", help="Synthetic-vs-real ranking agreement and split-half selection on real queries")
+    cv.add_argument("corpus_dir")
+    cv.add_argument("--name", default=None)
+    cv.add_argument("--evalset", required=True)
+    cv.add_argument("--out", required=True, help="Directory for crossval.md and crossval.json")
+    cv.add_argument("--cache", default=".ragtuner-cache")
+    cv.add_argument("--space", default="phase1")
+    cv.add_argument("--splits", type=int, default=200)
+
     qp = sub.add_parser("query", help="Retrieve with an exported config")
     qp.add_argument("corpus_dir")
     qp.add_argument("--name", default=None)
@@ -98,6 +107,8 @@ def main(argv: list[str] | None = None) -> int:
             return _cmd_replay(args)
         if args.command == "query":
             return _cmd_query(args)
+        if args.command == "crossval":
+            return _cmd_crossval(args)
     except (ValueError, FileNotFoundError, KeyError) as e:
         print(f"ragtuner: error: {e}", file=sys.stderr)
         return 1
@@ -212,6 +223,27 @@ def _cmd_replay(args: argparse.Namespace) -> int:
     print(json.dumps({"config": cfg.key, "chunks": stats.chunks, "questions_checked": checked, "mismatches": len(mismatches),
                       "identical": not mismatches, "mismatch_ids": mismatches[:10]}, indent=2))
     return 0 if not mismatches else 3
+
+
+def _cmd_crossval(args: argparse.Namespace) -> int:
+    from ragtuner.crossval import run_crossval
+    from ragtuner.evalset import EvalSet
+    from ragtuner.pipeline import ModelPool
+    from ragtuner.run import load_corpus, log, resolve_default, space_preset
+    from ragtuner.search import Evaluator
+
+    corpus = load_corpus(args.name or Path(args.corpus_dir).name, args.corpus_dir)
+    es = EvalSet.load(args.evalset)
+    default, notes = resolve_default(None)
+    ev = Evaluator(corpus, cache_root=args.cache, pool=ModelPool(), log=log, anchor_parser=es.metadata.get("parser"))
+    rep = run_crossval(ev, space_preset(args.space), es, default, splits=args.splits)
+    out = Path(args.out)
+    out.mkdir(parents=True, exist_ok=True)
+    md = rep.to_markdown() + ("\n\n" + "\n".join(f"- {n}" for n in notes) if notes else "")
+    (out / "crossval.md").write_text(md + "\n", encoding="utf-8")
+    (out / "crossval.json").write_text(json.dumps(rep.to_dict(), indent=2), encoding="utf-8")
+    print(md)
+    return 0
 
 
 def _cmd_query(args: argparse.Namespace) -> int:
