@@ -164,16 +164,9 @@ class RetrievalIndex:
             return rrf([s, d], limit=n)
         if mode == "better-rag":
             assert self._better
-            # BETTER-RAG has no native filter: rank everything, then filter before cutting to n.
-            depth = len(self.chunks) if allowed is not None else n
-            try:
-                hits = self._better.search(query, top_k=max(depth, 1))
-            except ValueError:
-                return []
-            ranked = [(self._by_id[h.document_id], h.score) for h in hits]
-            if allowed is not None:
-                ranked = [(i, sc) for i, sc in ranked if allowed[i]]
-            return ranked[:n]
+            from ragtuner.index.better import better_rag_search
+
+            return better_rag_search(self._better, query, n, allowed, self._by_id)
         raise ValueError(mode)
 
     def _query_vec(self, query: str) -> np.ndarray:
