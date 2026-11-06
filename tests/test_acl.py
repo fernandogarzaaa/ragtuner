@@ -75,3 +75,12 @@ def test_unrestricted_retrieval_still_sees_everything(corpus, tmp_path):
     assert owners == {"alice_secret", "bob_secret", "public", "other_tenant"}
     # ACL metadata is attached at chunk time, not in the parse cache
     assert all("tenant" in c.metadata for c in index.chunks)
+
+
+@pytest.mark.parametrize("retrieval,embedder", MODES)
+def test_requests_without_tenant_see_no_tenant_owned_chunks(corpus, tmp_path, retrieval, embedder):
+    cfg = RagConfig(parser="plaintext", chunker="structure", chunk_params={"target_words": 50, "max_words": 100},
+                    embedder=embedder, retrieval=retrieval, top_k=1, candidates=10)
+    index, _ = build_index(corpus, cfg, cache_root=tmp_path / "cache")
+    for access in (Access(None, None), Access(None, "alice"), Access(None, "bob")):
+        assert index.retrieve(QUERY, k=len(index.chunks), access=access) == [], f"{retrieval} {access} crossed tenants"

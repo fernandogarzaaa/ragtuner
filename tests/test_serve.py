@@ -165,3 +165,64 @@ def test_extractive_answer_strips_table_markup():
     h = Hit("c", "d", 0, 10, 1.0, 1, "| Item | Fee |\n|---|---|\n| Restocking fee for returns | $5 |\n\nThe restocking fee applies to opened items.")
     ans = Runtime._extractive("What is the restocking fee?", [h])
     assert "|" not in ans and "---" not in ans and "restocking fee" in ans.lower()
+
+
+def test_dense_config_serves_from_worker_threads(tmp_path):
+    """Regression: the SQLite embedding cache was bound to the thread that built the index,
+    so every HTTP request for a dense or hybrid config failed in a worker thread."""
+    root = make_corpus(tmp_path / "c")
+    cfg = RagConfig(parser="plaintext", chunker="structure", chunk_params={"target_words": 60, "max_words": 120},
+                    embedder="hash-64", retrieval="hybrid", top_k=3)
+    rt = Runtime(root, cfg, cache_root=tmp_path / "cache")
+    srv = make_server(rt, port=0)
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    try:
+        results = []
+        workers = [threading.Thread(target=lambda: results.append(post(srv.server_address[1], "/search", {"query": f"form F{i}1 penalty"})))
+                   for i in range(3)]
+        for w in workers:
+            w.start()
+        for w in workers:
+            w.join()
+        assert len(results) == 3 and all(r["hits"] for r in results)
+    finally:
+        srv.shutdown()
+
+
+def test_verify_rejects_a_deployment_that_returns_nothing(tmp_path):
+    from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+
+    root = make_corpus(tmp_path / "c")
+    corpus = load_corpus("c", root)
+    es = HeuristicGenerator(seed=0, unanswerable_fraction=0.0).generate([parse_file(f) for f in corpus.files], 6)
+    es.metadata = {"parser": "plaintext"}
+    space = Space(parsers=["plaintext"], chunkers=[("structure", {"target_words": 60, "max_words": 120})], embedders=[None],
+                  retrievals=["sparse"], rerankers=[None])
+    tune(corpus, es, out=tmp_path / "run", cache_root=tmp_path / "cache", space=space, default=CFG)
+    build_bundle(tmp_path / "run", tmp_path / "bundle")
+
+    class Empty(BaseHTTPRequestHandler):
+        def log_message(self, *a):
+            pass
+
+        def _reply(self, obj):
+            body = json.dumps(obj).encode()
+            self.send_response(200)
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+
+        def do_GET(self):
+            self._reply({"status": "ok", "config": "x"})
+
+        def do_POST(self):
+            self.rfile.read(int(self.headers.get("Content-Length") or 0))
+            self._reply({"hits": []})
+
+    srv = ThreadingHTTPServer(("127.0.0.1", 0), Empty)
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    try:
+        v = verify_bundle(tmp_path / "bundle", url=f"http://127.0.0.1:{srv.server_address[1]}")
+    finally:
+        srv.shutdown()
+    assert v["identical"] is False and v["mismatched"] == v["checked"] > 0

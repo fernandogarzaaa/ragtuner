@@ -3,9 +3,12 @@
 Rules (fail closed):
 - A chunk carries an optional tenant and a set of principals. Empty principals means
   visible to everyone in its tenant.
-- A request carries an Access(tenant, principal). A tenant filter hides every chunk of
-  another tenant and every chunk with no tenant. A chunk with principals is visible only
-  to a request whose principal is in that set; an anonymous request never sees it.
+- A request carries an Access(tenant, principal). Tenants must match exactly: a chunk
+  owned by a tenant is visible only to requests for that tenant (a request with no tenant
+  sees none of them), and a tenant-scoped request never sees chunks without a tenant. A
+  chunk with principals is visible only to a request whose principal is in that set; an
+  anonymous request never sees it. Access=None is the separate unrestricted path used by
+  evaluation, never by serving when the corpus has an ACL.
 - Filtering happens BEFORE top-k (pre-filter). Post-filtering would starve top-k: when
   the best matches belong to someone else, the caller would get fewer results or none.
 
@@ -58,7 +61,9 @@ def apply_acl(chunks: list[Chunk], acl_by_doc: dict[str, DocACL]) -> list[Chunk]
 def visible(chunk: Chunk, access: Access) -> bool:
     tenant = chunk.metadata.get("tenant")
     principals = chunk.metadata.get("principals") or []
-    if access.tenant is not None and tenant != access.tenant:
+    # Tenants must match exactly: a tenant-owned chunk is hidden from requests that carry
+    # no tenant (or another one), and a tenant-scoped request never sees tenantless chunks.
+    if tenant != access.tenant:
         return False
     if principals and access.principal not in principals:
         return False

@@ -73,9 +73,19 @@ class QuestionResult:
     def ndcg_at(self, k: int) -> float:
         if not self.span_ranks:
             return float("nan")
-        gains = sorted(r for r in self.span_ranks if r is not None and r <= k)
-        dcg = sum(1.0 / math.log2(r + 1) for r in gains)
-        ideal = sum(1.0 / math.log2(i + 2) for i in range(min(len(self.span_ranks), k)))
+        # Graded gain per rank = number of gold spans first covered at that rank, so one chunk
+        # covering two spans earns 2 at its rank. The ideal places the same gains (plus 1 for
+        # every span not covered within k) at the earliest ranks, which keeps nDCG <= 1.
+        found: dict[int, int] = {}
+        missing = 0
+        for r in self.span_ranks:
+            if r is not None and r <= k:
+                found[r] = found.get(r, 0) + 1
+            else:
+                missing += 1
+        dcg = sum(g / math.log2(r + 1) for r, g in found.items())
+        ideal_gains = sorted(list(found.values()) + [1] * missing, reverse=True)[:k]
+        ideal = sum(g / math.log2(i + 2) for i, g in enumerate(ideal_gains))
         return dcg / ideal if ideal else 0.0
 
     def to_dict(self) -> dict[str, Any]:

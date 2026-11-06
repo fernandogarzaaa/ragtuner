@@ -9,6 +9,7 @@ from __future__ import annotations
 import hashlib
 import importlib
 import sqlite3
+import threading
 from pathlib import Path
 from typing import Callable, Protocol, Sequence
 
@@ -59,7 +60,10 @@ class EmbeddingCache:
         root = Path(root)
         root.mkdir(parents=True, exist_ok=True)
         self.path = root / "embeddings.sqlite"
-        self._db = sqlite3.connect(self.path)
+        # Serving builds the index on one thread and answers on others (HTTP worker threads,
+        # the MCP main loop), so the connection must not be thread-bound; a lock serializes it.
+        self._db = sqlite3.connect(self.path, check_same_thread=False)
+        self._lock = threading.Lock()
         self._db.execute(
             "CREATE TABLE IF NOT EXISTS vectors (model TEXT, key TEXT, dim INTEGER, vec BLOB, PRIMARY KEY (model, key))"
         )
@@ -68,6 +72,10 @@ class EmbeddingCache:
         self.misses = 0
 
     def embed(self, embedder: Embedder, texts: Sequence[str], *, kind: str = "document", batch: int = 64) -> np.ndarray:
+        with self._lock:
+            return self._embed(embedder, texts, kind=kind, batch=batch)
+
+    def _embed(self, embedder: Embedder, texts: Sequence[str], *, kind: str, batch: int) -> np.ndarray:
         keys = [text_key(f"{kind}\x00{t}") for t in texts]
         out = np.zeros((len(texts), embedder.dim), dtype=np.float32)
         missing: list[int] = []

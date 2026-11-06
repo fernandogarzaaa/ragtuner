@@ -56,3 +56,18 @@ def test_evalset_round_trip_and_filters(tmp_path):
     assert back.questions == qs and back.metadata == {"corpus": "x"} and back.name == "t"
     assert len(back.real) == 1 and len(back.synthetic) == 2
     assert back.summary()["by_block_type"] == {"table": 1, "none": 2}
+
+
+def test_ndcg_multi_span_is_bounded_and_consistent():
+    from ragtuner.metrics import QuestionResult
+
+    def nd(ranks, k=5):
+        return QuestionResult("q", [], ranks).ndcg_at(k)
+
+    assert nd([1, 1]) == 1.0 and nd([1, 1], k=1) == 1.0  # one chunk covers both spans
+    assert nd([1, 2]) == 1.0
+    assert abs(nd([3]) - 0.5) < 1e-12
+    assert abs(nd([1, None]) - 1 / (1 + 1 / math.log2(3))) < 1e-12
+    assert nd([None, None]) == 0.0
+    for ranks in ([1, 1, 1], [2, 2], [1, 3, 3], [5, 1, None]):
+        assert 0.0 <= nd(ranks) <= 1.0

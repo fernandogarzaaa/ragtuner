@@ -143,7 +143,8 @@ def verify_bundle(bundle: str | Path, corpus_dir: str | Path | None = None, *, c
             with urllib.request.urlopen(req, timeout=120) as resp:
                 got = [h["chunk_id"] for h in json.load(resp)["hits"]]
             checked += 1
-            if got != recorded[q.id][: len(got)]:
+            # the full recorded top-k, length included: an empty or partial index must not pass
+            if got != recorded[q.id][:k]:
                 mismatched.append(q.id)
     finally:
         if server is not None:
