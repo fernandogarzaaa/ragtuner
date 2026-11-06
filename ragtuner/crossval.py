@@ -14,8 +14,10 @@ optimistic upper bound because it selects on the test questions.
 
 from __future__ import annotations
 
+import json
 import random
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Any
 
 from ragtuner.config import RagConfig
@@ -91,7 +93,8 @@ class CrossvalReport:
 
 
 def run_crossval(ev: Evaluator, space: Space, evalset: EvalSet, default: RagConfig, *, splits: int = 200, seed: int = 0,
-                 k: int = 5) -> CrossvalReport:
+                 k: int = 5, checkpoint: str | Path | None = None) -> CrossvalReport:
+    """checkpoint: JSON file holding finished configs' scores; reruns skip those configs."""
     if ev.anchor_parser is None:
         ev.anchor_parser = evalset.metadata.get("parser")
     synth = [q for q in evalset.synthetic.questions if q.answerable]
@@ -102,7 +105,16 @@ def run_crossval(ev: Evaluator, space: Space, evalset: EvalSet, default: RagConf
     configs[default.key] = default
     hit: dict[str, dict[str, float]] = {}  # config key -> question id -> recall@k
     synth_score: dict[str, float] = {}
+    ckpt = Path(checkpoint) if checkpoint else None
+    if ckpt and ckpt.exists():
+        saved = json.loads(ckpt.read_text())
+        for key, v in saved.items():
+            if key in configs:
+                synth_score[key], hit[key] = v["synthetic"], v["real"]
+        ev.log(f"[crossval] resumed {len(synth_score)} configs from {ckpt}")
     for key, cfg in configs.items():
+        if key in synth_score:
+            continue
         idx, _ = ev.index(cfg)
         qs_s = ev.questions_for(cfg.parser, synth)
         qs_r = ev.questions_for(cfg.parser, real)
@@ -110,6 +122,11 @@ def run_crossval(ev: Evaluator, space: Space, evalset: EvalSet, default: RagConf
         rr = {q.id: score_question(q, idx.retrieve(q.question, k=CANDIDATES, candidates=CANDIDATES)).recall_at(k) for q in qs_r}
         synth_score[key] = sum(r.recall_at(k) for r in rs) / len(rs)
         hit[key] = rr
+        if ckpt:
+            done = {x: {"synthetic": synth_score[x], "real": hit[x]} for x in synth_score}
+            tmp = ckpt.with_suffix(".tmp")
+            tmp.write_text(json.dumps(done))
+            tmp.replace(ckpt)
         ev.log(f"[crossval] {key} synthetic={synth_score[key]:.3f} real={sum(rr.values()) / len(rr):.3f}")
     real_score = {key: sum(v.values()) / len(v) for key, v in hit.items()}
     grid_keys = [key for key in configs if key != default.key or default.key in {c.key for c in space.grid()}]

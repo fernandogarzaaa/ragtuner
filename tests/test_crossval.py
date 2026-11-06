@@ -33,7 +33,12 @@ def test_crossval_runs_end_to_end(tmp_path: Path):
     space = Space(parsers=["plaintext"], chunkers=[("fixed", {"size": 30, "overlap": 5}), ("structure", {"target_words": 60, "max_words": 120})],
                   embedders=[None, "hash-64"], retrievals=["sparse", "dense"], rerankers=[None])
     default = RagConfig(parser="plaintext", chunker="fixed", chunk_params={"size": 30, "overlap": 5}, embedder="hash-64", retrieval="dense")
-    rep = run_crossval(Evaluator(corpus, cache_root=tmp_path / "cache"), space, es, default, splits=20)
+    ck = tmp_path / "ck.json"
+    rep = run_crossval(Evaluator(corpus, cache_root=tmp_path / "cache"), space, es, default, splits=20, checkpoint=ck)
+    logs = []
+    rep2 = run_crossval(Evaluator(corpus, cache_root=tmp_path / "cache", log=logs.append), space, es, default, splits=20, checkpoint=ck)
+    assert rep2.spearman_recall5 == rep.spearman_recall5 or rep.spearman_recall5 != rep.spearman_recall5
+    assert any("resumed" in line for line in logs) and not any("synthetic=" in line for line in logs)
     assert rep.n_configs == len(space.grid()) and rep.n_real == 8 and rep.splits == 20
     assert -1.0 <= rep.spearman_recall5 <= 1.0 or rep.spearman_recall5 != rep.spearman_recall5
     assert rep.oracle_real >= rep.synthetic_winner_real and sum(rep.picks.values()) == 20
