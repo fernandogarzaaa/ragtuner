@@ -22,6 +22,8 @@ set scores every configuration.
 
 ## Commands
 
+Tune:
+
 ```bash
 ragtuner parsers                                   # which backends import
 ragtuner parse doc.pdf --parser docling --summary  # block model for one file
@@ -29,13 +31,50 @@ ragtuner gate sample corpus/ --n 20 --parsers pymupdf-text,docling --out gate_ou
 ragtuner gate score --sheet gate_out/sheet.jsonl --gold gate_out/gold.jsonl
 ragtuner evalgen corpus/ --parser docling --n 100 --real-financebench rows.jsonl --out eval.jsonl
 ragtuner tune corpus/ --evalset eval.jsonl --space phase1 --with-grid --out runs/corpus
+ragtuner crossval corpus/ --evalset eval.jsonl --out runs/corpus-crossval   # does synthetic agree with real?
 ragtuner replay corpus/ --run runs/corpus          # exported config reproduces the tuner's hits
-ragtuner query corpus/ --config runs/corpus/best_config.yaml "your question"
 ```
 
-`tune` writes `report.md`, `report.json`, `best_config.yaml`, `manifest.json`,
-`diagnoses.json`, `eval_set.jsonl`, `search.json`, and per-question results for the
-winner and the default.
+Deploy and operate:
+
+```bash
+ragtuner export --run runs/corpus --out bundle/ --corpus corpus/ --verify   # bundle + replay over HTTP
+ragtuner serve corpus/ --config bundle/best_config.yaml --port 8080 --query-log queries.jsonl
+ragtuner mcp corpus/ --config bundle/best_config.yaml                       # stdio MCP server
+ragtuner sync corpus/ --config bundle/best_config.yaml --state state.json   # incremental re-index
+ragtuner monitor --log queries.jsonl --run runs/corpus --corpus corpus/ --candidates label_me.jsonl
+ragtuner export --run runs/corpus --out /tmp/chk --verify --url http://host:8080   # check a live deployment
+```
+
+`tune` writes `report.md`, `report.json`, `best_config.yaml`, `manifest.json` (with the
+corpus file hashes and the exact ragtuner commit), `diagnoses.json`, `eval_set.jsonl`,
+`search.json`, and per-question results for the winner and the default.
+
+### Serving surfaces
+
+- **HTTP API** (`serve`): `POST /search`, `POST /ask` (extractive answer with numbered
+  citations; set `RAGTUNER_LLM_ANSWERS=1` for an LLM answer over the same hits),
+  `GET /manifest`, `POST /admin/reload` (guarded by `RAGTUNER_ADMIN_TOKEN`), `GET /widget.js`.
+  Permission filtering reads `X-Tenant` and `X-Principal` from a trusted gateway and fails
+  closed. It runs the same build path the tuner evaluated.
+- **Chat widget**: `<script src="https://host/widget.js" data-api="https://host"></script>`.
+- **MCP server** (`mcp`): `search` and `ask` tools over stdio, tested with the official MCP
+  Python SDK client.
+- **Bundle** (`export`): config, manifest, pinned requirements (ragtuner and BETTER-RAG
+  pinned to exact commits), a Dockerfile, and an MCP client entry. `--verify` replays the
+  eval set over HTTP and requires identical top-10 hits. Docker Hub rate-limits anonymous
+  pulls; pass `--build-arg BASE_IMAGE=public.ecr.aws/docker/library/python:3.12-slim`.
+- **Monitoring** (`monitor`): low-confidence share against the eval baseline, score drift,
+  empty results, latency, corpus freshness, and proposed fixes, including a file of
+  low-confidence queries to label as new real eval questions.
+
+### LLM and embedding providers
+
+The Claude question generator, the judge, LLM query rewriting and LLM answers use
+`ANTHROPIC_API_KEY` when set, otherwise `OPENROUTER_API_KEY` (any OpenRouter model, a
+comma-separated list for fallback routing). `text-embedding-3-small` runs with
+`OPENAI_API_KEY` or `OPENROUTER_API_KEY`. Free OpenRouter models work with
+`--llm-model` and `--max-calls`.
 
 ## Modules
 
@@ -53,6 +92,13 @@ winner and the default.
 | `ragtuner.diagnose` | Deterministic failure stage per miss (parse, chunk, deep, rank), attribute lift with minimum support, fix recipes, question ids |
 | `ragtuner.judge` | Stage 3 generation quality with Claude (answer from context, judged against gold); skipped without credentials |
 | `ragtuner.report` | Markdown and JSON report, verdict on the pre-registered hypothesis, config export with manifest |
+| `ragtuner.rewrite` | Query rewriting arms: `prf` (pseudo-relevance feedback) and `llm` (cached reformulation) |
+| `ragtuner.access` | Tenant and principal pre-filtering applied inside every index before ranking |
+| `ragtuner.align` | Projects gold spans from the anchor parse onto another parser's text by token alignment |
+| `ragtuner.crossval` | Synthetic-vs-real ranking agreement and split-half selection on real queries |
+| `ragtuner.serve` | Serving runtime, HTTP API, chat widget, MCP server |
+| `ragtuner.export`, `ragtuner.monitor` | Deployable bundles with HTTP verification; query-log monitoring with fix proposals |
+| `ragtuner.llm` | Anthropic or OpenRouter caller with retries, fallback models and a usage tally |
 
 ## Install
 
@@ -69,14 +115,8 @@ a mismatched torchvision breaks Docling's image processor import.
 
 ## Honest status
 
-What is verified by tests or by runs in this repo's history is listed in
-`docs/phase1-results.md`. Two gaps are structural rather than bugs:
-
-- The Claude-based generator and judge have unit tests with fake callers but have not
-  been run against the live API from this environment (no credentials here). The runs
-  used the heuristic generator, whose questions name words from the gold span and
-  therefore favor sparse retrieval. The report labels this on every run.
-- Real queries only count when their gold spans are trustworthy. FinanceBench ships
-  human evidence, so its real set is anchored. IRS FAQ answers could not be anchored by
-  lexical matching (the matches were wrong on inspection), so that corpus has no real
-  set rather than a misleading one.
+Measured outcomes, including the failed hypothesis on FinanceBench and why, are in
+`docs/phase1-results.md`. In short: the search machinery works (staged search within one
+point of the full grid; exported configs reproduce exactly, including from a Docker
+container), but a selection set from the offline heuristic generator does not agree with
+real questions, and 30 real questions are too few to tune on.
