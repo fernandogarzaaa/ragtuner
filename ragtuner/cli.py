@@ -45,6 +45,10 @@ def build_parser() -> argparse.ArgumentParser:
     eg.add_argument("--table-fraction", type=float, default=0.25)
     eg.add_argument("--real-financebench", default=None, help="FinanceBench rows JSONL for real questions")
     eg.add_argument("--real-qa", default=None, help="JSONL of {question, answer} rows for real questions (weak gold)")
+    eg.add_argument("--llm-model", default=None, help="Model id for --generator llm (default claude-opus-5-5; any OpenRouter id)")
+    eg.add_argument("--max-calls", type=int, default=None, help="Cap on LLM calls (free tiers have daily limits)")
+    eg.add_argument("--unanswerable-fraction", type=float, default=0.1)
+    eg.add_argument("--multihop-fraction", type=float, default=0.1)
     eg.add_argument("--cache", default=".ragtuner-cache")
     eg.add_argument("--out", required=True)
 
@@ -175,7 +179,9 @@ def _cmd_evalgen(args: argparse.Namespace) -> int:
     corpus = load_corpus(args.name or Path(args.corpus_dir).name, args.corpus_dir)
     es = generate_evalset(corpus, parser=args.parser, n_synthetic=args.n, cache_root=Path(args.cache), seed=args.seed,
                           generator=args.generator, real_financebench=Path(args.real_financebench) if args.real_financebench else None,
-                          real_qa=Path(args.real_qa) if args.real_qa else None, table_fraction=args.table_fraction)
+                          real_qa=Path(args.real_qa) if args.real_qa else None, table_fraction=args.table_fraction,
+                          llm_model=args.llm_model, max_calls=args.max_calls, unanswerable_fraction=args.unanswerable_fraction,
+                          multihop_fraction=args.multihop_fraction)
     es.save(args.out)
     print(json.dumps(es.summary(), indent=2))
     return 0

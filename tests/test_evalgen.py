@@ -115,3 +115,17 @@ def test_qa_pairs_importer_uses_answer_not_question(tmp_path):
     q = es.questions[0]
     assert q.gold_quality == "weak" and "Ohio" in doc.text[q.spans[0].start:q.spans[0].end]
     assert lexical_overlap("How fast do you deliver?", doc.text[q.spans[0].start:q.spans[0].end]) < 0.5
+
+
+def test_llm_generator_respects_call_budget(tmp_path):
+    doc = make_doc(tmp_path)
+    calls = []
+
+    def fake(system, user):
+        calls.append(1)
+        return json.dumps({"question": "How long is the return window for purchases?", "answer": "30 days",
+                           "evidence": "Customers may return purchased items within 30 days for a full refund when the receipt is included."})
+
+    gen = LLMGenerator(caller=fake, table_fraction=0.0, multihop_fraction=0.0, unanswerable_fraction=0.0, max_calls=1)
+    es = gen.generate([doc], 5)
+    assert len(calls) == 1 and es.metadata["budget_exhausted"] is True and len(es.questions) == 1

@@ -59,26 +59,14 @@ _UNANSWERABLE = (
 Caller = Callable[[str, str], str]  # (system, user) -> text
 
 
+class BudgetExhausted(RuntimeError):
+    pass
+
+
 def default_caller(model: str = MODEL, effort: str = "medium") -> Caller:
-    import anthropic
+    from ragtuner.llm import default_caller as _dc
 
-    client = anthropic.Anthropic()
-
-    def call(system: str, user: str) -> str:
-        resp = client.beta.messages.create(
-            model=model,
-            max_tokens=2000,
-            system=system,
-            output_config={"effort": effort},
-            betas=["server-side-fallback-2026-07-01"],
-            fallbacks="default",
-            messages=[{"role": "user", "content": user}],
-        )
-        if resp.stop_reason == "refusal":
-            raise RuntimeError("model refused")
-        return "".join(b.text for b in resp.content if b.type == "text")
-
-    return call
+    return _dc(model, effort)
 
 
 def _json(text: str) -> dict[str, Any]:
@@ -93,8 +81,10 @@ class LLMGenerator:
 
     def __init__(self, caller: Caller | None = None, *, seed: int = 0, table_fraction: float = 0.25,
                  multihop_fraction: float = 0.1, unanswerable_fraction: float = 0.1, max_overlap: float = 0.5,
-                 paraphrase_rounds: int = 2) -> None:
-        self.caller = caller or default_caller()
+                 paraphrase_rounds: int = 2, max_calls: int | None = None, model: str | None = None) -> None:
+        self.model = model or MODEL
+        self.caller = caller or default_caller(self.model)
+        self.max_calls = max_calls
         self.seed = seed
         self.table_fraction = table_fraction
         self.multihop_fraction = multihop_fraction
@@ -105,8 +95,13 @@ class LLMGenerator:
         self.dropped: list[dict[str, Any]] = []
 
     def _call(self, system: str, user: str) -> dict[str, Any]:
+        if self.max_calls is not None and self.calls >= self.max_calls:
+            raise BudgetExhausted(f"call budget of {self.max_calls} reached")
         self.calls += 1
         return _json(self.caller(system, user))
+
+    def _budget_left(self) -> bool:
+        return self.max_calls is None or self.calls < self.max_calls
 
     def generate(self, docs: list[ParsedDocument], n: int, *, name: str = "synthetic") -> EvalSet:
         rng = random.Random(self.seed)
@@ -116,19 +111,25 @@ class LLMGenerator:
         questions: list[EvalQuestion] = []
         blocks = sample_blocks(docs, n_single + n_un, seed=self.seed, table_fraction=self.table_fraction)
         for doc, block in blocks[:n_single]:
+            if not self._budget_left():
+                break
             q = self._single(doc, block)
             if q:
                 questions.append(q)
         for doc, block in blocks[n_single : n_single + n_un]:
+            if not self._budget_left():
+                break
             q = self._unanswerable(doc, block)
             if q:
                 questions.append(q)
         for doc, b1, b2 in _pairs(docs, n_mh, rng):
+            if not self._budget_left():
+                break
             q = self._multihop(doc, b1, b2)
             if q:
                 questions.append(q)
-        return EvalSet(name, questions, {"generator": self.name, "model": MODEL, "seed": self.seed, "calls": self.calls,
-                                         "dropped": len(self.dropped)})
+        return EvalSet(name, questions, {"generator": self.name, "model": self.model, "seed": self.seed, "calls": self.calls,
+                                         "dropped": len(self.dropped), "budget_exhausted": not self._budget_left()})
 
     def _user(self, doc: ParsedDocument, block: Block) -> str:
         path = " > ".join(heading_path(doc, block)) or "(no heading)"

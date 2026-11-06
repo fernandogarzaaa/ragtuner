@@ -46,12 +46,15 @@ def load_corpus(name: str, root: str | Path) -> Corpus:
 
 
 def have_llm() -> bool:
-    return bool(os.environ.get("ANTHROPIC_API_KEY") or os.environ.get("ANTHROPIC_AUTH_TOKEN"))
+    from ragtuner.llm import provider
+
+    return provider() is not None
 
 
 def generate_evalset(corpus: Corpus, *, parser: str, n_synthetic: int, cache_root: Path, seed: int = 0,
                      generator: str = "auto", real_financebench: Path | None = None, real_qa: Path | None = None,
-                     table_fraction: float = 0.25) -> EvalSet:
+                     table_fraction: float = 0.25, llm_model: str | None = None, max_calls: int | None = None,
+                     unanswerable_fraction: float = 0.1, multihop_fraction: float = 0.1) -> EvalSet:
     """Synthetic questions come from the parsed block model of `parser` (independent of any
     chunker). Real questions are imported and held out."""
     cache = ParseCache(cache_root)
@@ -61,11 +64,16 @@ def generate_evalset(corpus: Corpus, *, parser: str, n_synthetic: int, cache_roo
     if generator == "auto":
         gen_name = "llm" if have_llm() else "heuristic"
     if gen_name == "llm":
-        gen = LLMGenerator(seed=seed, table_fraction=table_fraction)
+        gen = LLMGenerator(seed=seed, table_fraction=table_fraction, model=llm_model, max_calls=max_calls,
+                           unanswerable_fraction=unanswerable_fraction, multihop_fraction=multihop_fraction)
     else:
         gen = HeuristicGenerator(seed=seed, table_fraction=table_fraction)
     synth = gen.generate(docs, n_synthetic, name=f"{corpus.name}-synthetic")
     log(f"evalgen: {len(synth)} synthetic questions via {gen_name} ({synth.summary()})")
+    if gen_name == "llm":
+        from ragtuner.llm import USAGE
+
+        log(f"evalgen: llm model {synth.metadata.get('model')} calls={synth.metadata.get('calls')} dropped={synth.metadata.get('dropped')} usage={USAGE}")
     sets = [synth]
     if real_financebench:
         by_name = {}
@@ -80,7 +88,8 @@ def generate_evalset(corpus: Corpus, *, parser: str, n_synthetic: int, cache_roo
         log(f"evalgen: {len(real)} real QA questions located with weak gold ({real.metadata.get('skipped')} skipped)")
         sets.append(real)
     es = EvalSet.merge(corpus.name, sets)
-    es.metadata = {"corpus": corpus.name, "parser": parser, "generator": gen_name, "seed": seed, "n_synthetic_requested": n_synthetic}
+    es.metadata = {"corpus": corpus.name, "parser": parser, "generator": gen_name, "seed": seed, "n_synthetic_requested": n_synthetic,
+                   "generator_model": synth.metadata.get("model"), "generator_calls": synth.metadata.get("calls")}
     return es
 
 
@@ -146,7 +155,7 @@ def tune(corpus: Corpus, evalset: EvalSet, *, out: Path, cache_root: Path, space
     if weak:
         notes.append(f"{weak} real questions have weak (automatically located) gold spans.")
     generation = None
-    if have_llm():
+    if have_llm() and os.environ.get("RAGTUNER_JUDGE") == "1":
         try:
             from ragtuner.judge import Judge
 
@@ -164,7 +173,7 @@ def tune(corpus: Corpus, evalset: EvalSet, *, out: Path, cache_root: Path, space
         except Exception as e:  # noqa: BLE001
             notes.append(f"Generation judge skipped: {type(e).__name__}: {e}")
     else:
-        notes.append("Generation judge skipped: no Anthropic credentials in this environment.")
+        notes.append("Generation judge skipped: set RAGTUNER_JUDGE=1 with LLM credentials to run it.")
     paths = write_report(out, rep, evalset, fails, dfails, gate=gate, notes=notes, regret=reg)
     (out / "search.json").write_text(json.dumps(rep.to_dict(), indent=2, default=str))
     (out / "winner_results.json").write_text(json.dumps([r.to_dict() for r in rep.winner.results], indent=2, default=str))

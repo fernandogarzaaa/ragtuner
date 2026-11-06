@@ -33,21 +33,9 @@ _JUDGE_SYSTEM = (
 
 
 def default_caller(model: str = "claude-opus-5-5", effort: str = "high") -> Caller:
-    import anthropic
+    from ragtuner.llm import default_caller as _dc
 
-    client = anthropic.Anthropic()
-
-    def call(system: str, user: str) -> str:
-        resp = client.beta.messages.create(
-            model=model, max_tokens=1500, system=system, output_config={"effort": effort},
-            betas=["server-side-fallback-2026-07-01"], fallbacks="default",
-            messages=[{"role": "user", "content": user}],
-        )
-        if resp.stop_reason == "refusal":
-            raise RuntimeError("model refused")
-        return "".join(b.text for b in resp.content if b.type == "text")
-
-    return call
+    return _dc(model, effort)
 
 
 @dataclass
