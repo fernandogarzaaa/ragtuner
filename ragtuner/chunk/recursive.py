@@ -52,6 +52,11 @@ class RecursiveChunker:
                         break
                     tail.insert(0, (ps, pe))
                     tw += pw
+                # Drop the overlap when it cannot make progress: if the tail is the whole
+                # chunk just emitted, or tail + next piece still exceeds size, keeping it
+                # would re-emit the same chunk forever.
+                if len(tail) == len(cur) or tw + w > self.size:
+                    tail, tw = [], 0
                 cur, cur_words = tail, tw
                 continue
             cur.append((s, e))

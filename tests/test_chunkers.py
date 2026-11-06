@@ -80,3 +80,33 @@ def test_structure_splits_big_table_and_repeats_header():
         assert "| item | value |" in c.index_text
         assert doc.text[c.start:c.end] == c.text
     assert "| row399 | 399 |" in chunks[-1].text
+
+
+def test_recursive_terminates_when_overlap_plus_next_piece_exceeds_size():
+    """Regression: a short piece followed by a near-size piece used to loop forever,
+    re-emitting the same chunk (found on a real Docling parse of IRS Publication 334)."""
+    short = "Short lead sentence here."
+    long_sentence = " ".join(f"w{i}" for i in range(97)) + "."
+    raw = [RawBlock(BlockType.PARAGRAPH, short), RawBlock(BlockType.PARAGRAPH, long_sentence),
+           RawBlock(BlockType.PARAGRAPH, short), RawBlock(BlockType.PARAGRAPH, long_sentence)]
+    doc = assemble(doc_id="r", source="x", content_hash="h", parser="p", parser_version="1", raw_blocks=raw)
+    chunks = get_chunker("recursive", size=100, overlap=10).chunk(doc)
+    assert 2 <= len(chunks) <= 4
+    assert len({(c.start, c.end) for c in chunks}) == len(chunks), "no duplicate chunks"
+    for c in chunks:
+        assert c.words <= 100
+
+
+def test_recursive_terminates_on_real_style_block_mix():
+    import random
+
+    rng = random.Random(0)
+    raw = []
+    for _ in range(300):
+        n = rng.choice([3, 8, 40, 120, 250, 255, 300])
+        raw.append(RawBlock(BlockType.PARAGRAPH, " ".join("x" for _ in range(n)) + "."))
+    doc = assemble(doc_id="m", source="x", content_hash="h", parser="p", parser_version="1", raw_blocks=raw)
+    for size, overlap in ((256, 30), (512, 50), (120, 24)):
+        chunks = get_chunker("recursive", size=size, overlap=overlap).chunk(doc)
+        total = sum(len(b.text.split()) for b in doc.blocks)
+        assert len(chunks) <= 2 * total / (size - overlap) + len(doc.blocks)
