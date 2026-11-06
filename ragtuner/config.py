@@ -24,6 +24,7 @@ class RagConfig:
     reranker: str | None = None
     top_k: int = 5
     candidates: int = 50
+    rerank_depth: int = 20  # the reranker reorders only the top rerank_depth candidates
     label: str | None = None
 
     def validate(self) -> None:
@@ -33,6 +34,8 @@ class RagConfig:
             raise ValueError("dense and hybrid retrieval need an embedder")
         if self.top_k <= 0 or self.candidates < self.top_k:
             raise ValueError("need 0 < top_k <= candidates")
+        if self.rerank_depth < self.top_k:
+            raise ValueError("rerank_depth must be >= top_k")
 
     @property
     def chunker_key(self) -> str:
@@ -46,7 +49,7 @@ class RagConfig:
         d.pop("label", None)
         h = hashlib.sha256(json.dumps(d, sort_keys=True).encode()).hexdigest()[:8]
         emb = self.embedder or "none"
-        rr = self.reranker or "norerank"
+        rr = f"{self.reranker}@{self.rerank_depth}" if self.reranker else "norerank"
         return f"{self.parser}|{self.chunker_key}|{emb}|{self.retrieval}|{rr}|k{self.top_k}|{h}"
 
     def to_dict(self) -> dict[str, Any]:

@@ -183,8 +183,11 @@ class RetrievalIndex:
         n = max(candidates or self.config.candidates, k)
         cands = self.candidates(query, n, allowed_mask(self.chunks, access))
         if self._reranker and cands:
-            scores = self._reranker.rerank(query, [self.chunks[i].index_text for i, _ in cands])
-            cands = sorted(zip((i for i, _ in cands), scores), key=lambda x: -x[1])
+            head, tail = cands[: self.config.rerank_depth], cands[self.config.rerank_depth :]
+            scores = self._reranker.rerank(query, [self.chunks[i].index_text for i, _ in head])
+            # reranked head first; the tail keeps its first-stage order below every reranked item
+            floor = min(scores) - 1.0 if scores else 0.0
+            cands = sorted(zip((i for i, _ in head), scores), key=lambda x: -x[1]) + [(i, floor) for i, _ in tail]
         out = []
         for rank, (i, score) in enumerate(cands[:k], start=1):
             c = self.chunks[i]
