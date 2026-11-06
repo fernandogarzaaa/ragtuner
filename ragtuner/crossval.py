@@ -112,10 +112,19 @@ def run_crossval(ev: Evaluator, space: Space, evalset: EvalSet, default: RagConf
             if key in configs:
                 synth_score[key], hit[key] = v["synthetic"], v["real"]
         ev.log(f"[crossval] resumed {len(synth_score)} configs from {ckpt}")
-    for key, cfg in configs.items():
+    from ragtuner.llm import QuotaExhausted
+
+    skipped: list[str] = []
+    for key, cfg in list(configs.items()):
         if key in synth_score:
             continue
-        idx, _ = ev.index(cfg)
+        try:
+            idx, _ = ev.index(cfg)
+        except QuotaExhausted as e:
+            ev.log(f"[crossval] skipped {key}: provider quota exhausted ({str(e)[:120]})")
+            skipped.append(key)
+            del configs[key]
+            continue
         qs_s = ev.questions_for(cfg.parser, synth)
         qs_r = ev.questions_for(cfg.parser, real)
         rs = [score_question(q, idx.retrieve(q.question, k=CANDIDATES, candidates=CANDIDATES)) for q in qs_s]

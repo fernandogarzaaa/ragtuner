@@ -48,3 +48,24 @@ def test_space_constraints():
             assert cfg.embedder
         else:
             assert cfg.embedder is None
+
+
+def test_search_skips_configs_whose_provider_quota_is_spent(tmp_path, monkeypatch):
+    from ragtuner.embed import hashing
+    from ragtuner.llm import QuotaExhausted
+
+    corpus = make_corpus(tmp_path)
+    docs = [parse_file(f, "plaintext") for f in corpus.files]
+    es = HeuristicGenerator(seed=0, unanswerable_fraction=0.0).generate(docs, 16)
+    es.metadata = {"parser": "plaintext"}
+
+    def broke(self, texts, kind="document"):
+        raise QuotaExhausted("HTTP 402: insufficient credits")
+
+    monkeypatch.setattr(hashing.HashingEmbedder, "embed", broke)
+    space = Space(parsers=["plaintext"], chunkers=[("fixed", {"size": 60, "overlap": 10})], embedders=[None, "hash-64"],
+                  retrievals=["sparse", "dense"], rerankers=[None])
+    ev = Evaluator(corpus, cache_root=tmp_path / "cache")
+    default = RagConfig(parser="plaintext", chunker="fixed", chunk_params={"size": 60, "overlap": 10}, embedder=None, retrieval="sparse")
+    rep = staged_search(ev, space, es, default, carry=2)
+    assert rep.winner.config.embedder is None and ev.skipped

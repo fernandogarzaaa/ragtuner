@@ -117,6 +117,7 @@ class Evaluator:
         self.log = log or (lambda s: None)
         self.evaluations = 0
         self.total_seconds = 0.0
+        self.skipped: list[str] = []
 
     def docs(self, parser: str) -> list[ParsedDocument]:
         if parser not in self._docs:
@@ -183,6 +184,18 @@ def _score(r: ConfigResult, metric: str) -> float:
     return -1.0 if math.isnan(v) else v
 
 
+def _try_eval(ev: "Evaluator", config: RagConfig, questions: list[EvalQuestion], **kw: Any) -> "ConfigResult | None":
+    """Evaluate, but drop a config whose API provider has no quota left instead of failing the search."""
+    from ragtuner.llm import QuotaExhausted
+
+    try:
+        return ev.evaluate(config, questions, **kw)
+    except QuotaExhausted as e:
+        ev.log(f"[{kw.get('stage', '')}] skipped {config.key}: provider quota exhausted ({str(e)[:120]})")
+        ev.skipped.append(config.key)
+        return None
+
+
 def successive_halving(ev: Evaluator, configs: list[RagConfig], evalset: EvalSet, *, stage: str, keep: int,
                        fractions: tuple[float, ...] = (0.25, 0.5, 1.0), metric: str = PRIMARY_METRIC, seed: int = 0) -> list[ConfigResult]:
     """Evaluate all configs on a growing question subset, halving the field each round.
@@ -192,7 +205,7 @@ def successive_halving(ev: Evaluator, configs: list[RagConfig], evalset: EvalSet
     for i, frac in enumerate(fractions):
         last = i == len(fractions) - 1
         subset = evalset if frac >= 1.0 else evalset.sample(frac, seed=seed + i)
-        results = [ev.evaluate(c, subset.questions, stage=f"{stage}/r{i + 1}", fraction=frac) for c in alive]
+        results = [r for c in alive if (r := _try_eval(ev, c, subset.questions, stage=f"{stage}/r{i + 1}", fraction=frac))]
         results.sort(key=lambda r: -_score(r, metric))
         if last:
             break
@@ -200,7 +213,7 @@ def successive_halving(ev: Evaluator, configs: list[RagConfig], evalset: EvalSet
         alive = [r.config for r in results[:n_keep]]
         if len(alive) <= keep:
             # nothing left to prune: jump straight to the full set
-            results = [ev.evaluate(c, evalset.questions, stage=f"{stage}/final", fraction=1.0) for c in alive]
+            results = [r for c in alive if (r := _try_eval(ev, c, evalset.questions, stage=f"{stage}/final", fraction=1.0))]
             results.sort(key=lambda r: -_score(r, metric))
             break
     return results
