@@ -129,6 +129,28 @@ hybrid 0.317, dense 0.312, BM25 with reranker 0.296, BETTER-RAG with reranker 0.
 BM25 0.217, BETTER-RAG 0.179. The real questions reward the opposite of what the
 heuristic set rewards.
 
+## FinanceBench with LLM-generated questions
+
+Artifacts: `runs/financebench_crossval_llm/`. The LLM generator (evidence must be quoted
+verbatim and is verified, paraphrase pass, table oversampling) ran on free OpenRouter
+models: 31 of its requests were served by Nemotron 3 Ultra 550B and 2 by Gemma 4 31B. The
+free tier allows 50 requests a day, so it stopped at 23 questions (15 attempts dropped
+for unverifiable evidence or the quota). Same 30 real questions held out, same 64 configs.
+
+| measure | heuristic questions (n=85) | LLM questions (n=23) |
+|---|---|---|
+| Spearman, synthetic vs real config ranking | -0.121 | +0.340 |
+| Real recall@5 of the config the synthetic set selects | 0.267 | 0.367 |
+| Real recall@5 of the frozen default | 0.367 | 0.367 |
+| Median question-to-evidence word overlap (real questions: 0.25) | 0.38 | 0.32 |
+
+The LLM set removes the selection bias that made tuning harmful: its pick (docling,
+recursive 512, BM25 with the reranker) ties the default on real questions instead of
+losing 10 points. It does not yet find a better config than the default. Two reasons
+are visible in the data: it still overrates plain BM25 (its second-ranked family, 0.701
+synthetic, is 0.217 on real questions), and 23 questions cannot separate the top configs
+(three tie at 0.870; one question is worth 4.3 points).
+
 ## Query rewriting on real questions
 
 `runs/prf_check.json`. Each of the 8 configs with the best real recall@5 on FinanceBench was
@@ -169,6 +191,8 @@ sandbox CA; the bundle's Dockerfile itself is unchanged by that.
    (rho = -0.12), so selecting on it is worse than not tuning. This is a property of the
    offline generator, which copies rare words from the evidence, not of the search,
    which recovers the grid optimum within about one point (IRS regret 0.011).
+   Replacing it with an LLM generator moved the correlation to +0.34 and turned a
+   10-point loss into a tie with the default, on only 23 free-model questions.
 2. **There is headroom over the default, but 30 real questions cannot find it reliably.**
    The best config beats the default by 10 points on the full real set, but that is
    selected on the test questions. Selecting on 15 real questions and testing on the
@@ -182,19 +206,22 @@ sandbox CA; the bundle's Dockerfile itself is unchanged by that.
 
 ## What would change the verdict (next steps, in order)
 
-1. Run the Claude generator (`--generator llm`) on FinanceBench and repeat `crossval`.
-   The question it answers: does an LLM generator with the paraphrase pass bring the
-   synthetic-vs-real correlation from -0.12 to clearly positive? If not, the thesis
-   reduces to "eval plus diagnosis", as the spec anticipated.
+1. Run the LLM generator at full size (100 or more questions) with a strong model and
+   repeat `crossval`. With 23 free-model questions the correlation is +0.34 and the pick
+   ties the default; the question is whether a larger, stronger set pushes the pick past
+   the default on held-out real questions. About $5 of OpenRouter credit covers it with
+   Claude Opus 5.5. If it still only ties, the thesis reduces to "eval plus diagnosis",
+   as the spec anticipated.
 2. Grow the real set: all 150 open FinanceBench questions span 84 filings. The 8-filing
    subset here was chosen for CPU time.
 3. Add `OPENAI_API_KEY` so the frozen default runs with its intended embedder.
 
 ## Not done, and why
 
-- Claude question generation, the judge, and LLM query rewriting were not run live. No
-  Anthropic key is available here, and the OpenRouter key provided is on the free tier
-  with a balance too small for one Claude request. All three have offline tests.
+- Claude question generation, the judge, and LLM query rewriting were not run live with
+  Claude. No Anthropic key is available here, and the OpenRouter key provided is on the
+  free tier with a balance too small for one Claude request. The generator did run live
+  on free open models (above); the judge and LLM rewriting have offline tests only.
 - The OpenAI embedding arm works through OpenRouter (verified with a live call), but
   embedding FinanceBench costs about $0.26, above the free balance, so the frozen default
   still ran with bge-small.

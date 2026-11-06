@@ -1,0 +1,356 @@
+{
+  "n_configs": 64,
+  "n_real": 30,
+  "n_synth": 23,
+  "spearman_recall5": 0.34042466172830677,
+  "default_key": "pymupdf-text|recursive-50-512|bge-small|dense|norerank|k5|4813b9e7",
+  "default_real": 0.36666666666666664,
+  "oracle_key": "pymupdf-text|structure-600-300|bge-small|dense|minilm@20|k5|5e8d5894",
+  "oracle_real": 0.4666666666666667,
+  "synthetic_winner_key": "docling|recursive-50-512|none|sparse|minilm@20|k5|498b07a0",
+  "synthetic_winner_real": 0.36666666666666664,
+  "splits": 500,
+  "mean_delta": -0.014266666666666667,
+  "win_rate": 0.338,
+  "picks": {
+    "docling|recursive-50-512|none|sparse|minilm@20|k5|498b07a0": 73,
+    "pymupdf-text|recursive-50-512|bge-small|hybrid|norerank|k5|5ee7c8a0": 118,
+    "pymupdf-text|structure-600-300|bge-small|dense|minilm@20|k5|5e8d5894": 220,
+    "pymupdf-text|fixed-24-120|bge-small|dense|minilm@20|k5|f63def47": 58,
+    "docling|fixed-24-120|bge-small|hybrid|minilm@20|k5|d46c3dfe": 2,
+    "docling|recursive-50-512|none|better-rag|minilm@20|k5|4209d02d": 4,
+    "pymupdf-text|recursive-50-512|none|sparse|norerank|k5|026d4f5a": 10,
+    "docling|recursive-50-512|bge-small|hybrid|norerank|k5|e4da06f6": 1,
+    "pymupdf-text|structure-600-300|bge-small|dense|norerank|k5|f8eb591e": 4,
+    "pymupdf-text|recursive-50-512|bge-small|dense|norerank|k5|4813b9e7": 1,
+    "pymupdf-text|recursive-30-256|bge-small|dense|minilm@20|k5|71478cef": 1,
+    "docling|recursive-30-256|bge-small|hybrid|minilm@20|k5|aadd7e1d": 1,
+    "docling|recursive-30-256|bge-small|hybrid|norerank|k5|5a1d9e3f": 1,
+    "docling|recursive-50-512|none|better-rag|norerank|k5|90632552": 3,
+    "pymupdf-text|recursive-50-512|none|sparse|minilm@20|k5|a9214306": 1,
+    "pymupdf-text|structure-600-300|none|better-rag|minilm@20|k5|e53051fe": 1,
+    "docling|fixed-24-120|bge-small|dense|norerank|k5|251671f5": 1
+  },
+  "table": [
+    {
+      "key": "pymupdf-text|structure-600-300|bge-small|dense|minilm@20|k5|5e8d5894",
+      "synthetic": 0.6957,
+      "real": 0.4667
+    },
+    {
+      "key": "pymupdf-text|fixed-24-120|bge-small|dense|minilm@20|k5|f63def47",
+      "synthetic": 0.6522,
+      "real": 0.4333
+    },
+    {
+      "key": "pymupdf-text|recursive-50-512|bge-small|hybrid|norerank|k5|5ee7c8a0",
+      "synthetic": 0.7391,
+      "real": 0.4333
+    },
+    {
+      "key": "pymupdf-text|fixed-24-120|bge-small|hybrid|minilm@20|k5|22932efa",
+      "synthetic": 0.6522,
+      "real": 0.4
+    },
+    {
+      "key": "pymupdf-text|recursive-30-256|bge-small|hybrid|norerank|k5|7a9c12c6",
+      "synthetic": 0.6087,
+      "real": 0.3667
+    },
+    {
+      "key": "pymupdf-text|recursive-50-512|bge-small|dense|norerank|k5|4813b9e7",
+      "synthetic": 0.6522,
+      "real": 0.3667
+    },
+    {
+      "key": "pymupdf-text|structure-600-300|bge-small|dense|norerank|k5|f8eb591e",
+      "synthetic": 0.6522,
+      "real": 0.3667
+    },
+    {
+      "key": "pymupdf-text|structure-600-300|bge-small|hybrid|minilm@20|k5|6c4a2ccb",
+      "synthetic": 0.6957,
+      "real": 0.3667
+    },
+    {
+      "key": "docling|recursive-50-512|none|sparse|minilm@20|k5|498b07a0",
+      "synthetic": 0.8696,
+      "real": 0.3667
+    },
+    {
+      "key": "docling|recursive-50-512|bge-small|dense|minilm@20|k5|d4210ca9",
+      "synthetic": 0.8261,
+      "real": 0.3667
+    },
+    {
+      "key": "docling|recursive-50-512|bge-small|hybrid|minilm@20|k5|bec37034",
+      "synthetic": 0.8696,
+      "real": 0.3667
+    },
+    {
+      "key": "docling|structure-600-300|bge-small|dense|minilm@20|k5|9b9298a4",
+      "synthetic": 0.6087,
+      "real": 0.3667
+    },
+    {
+      "key": "pymupdf-text|recursive-30-256|bge-small|dense|norerank|k5|3d030ac7",
+      "synthetic": 0.6087,
+      "real": 0.3333
+    },
+    {
+      "key": "pymupdf-text|recursive-30-256|bge-small|dense|minilm@20|k5|71478cef",
+      "synthetic": 0.5652,
+      "real": 0.3333
+    },
+    {
+      "key": "docling|fixed-24-120|bge-small|dense|norerank|k5|251671f5",
+      "synthetic": 0.6522,
+      "real": 0.3333
+    },
+    {
+      "key": "docling|fixed-24-120|bge-small|dense|minilm@20|k5|9b498b9a",
+      "synthetic": 0.6522,
+      "real": 0.3333
+    },
+    {
+      "key": "docling|fixed-24-120|bge-small|hybrid|minilm@20|k5|d46c3dfe",
+      "synthetic": 0.6522,
+      "real": 0.3333
+    },
+    {
+      "key": "docling|recursive-30-256|bge-small|hybrid|norerank|k5|5a1d9e3f",
+      "synthetic": 0.6522,
+      "real": 0.3333
+    },
+    {
+      "key": "pymupdf-text|fixed-24-120|none|better-rag|minilm@20|k5|b79500a4",
+      "synthetic": 0.5652,
+      "real": 0.3
+    },
+    {
+      "key": "pymupdf-text|fixed-24-120|bge-small|dense|norerank|k5|8f142184",
+      "synthetic": 0.5217,
+      "real": 0.3
+    },
+    {
+      "key": "pymupdf-text|fixed-24-120|bge-small|hybrid|norerank|k5|f7e29f62",
+      "synthetic": 0.5217,
+      "real": 0.3
+    },
+    {
+      "key": "pymupdf-text|recursive-50-512|none|sparse|norerank|k5|026d4f5a",
+      "synthetic": 0.8261,
+      "real": 0.3
+    },
+    {
+      "key": "pymupdf-text|recursive-50-512|none|sparse|minilm@20|k5|a9214306",
+      "synthetic": 0.7826,
+      "real": 0.3
+    },
+    {
+      "key": "pymupdf-text|recursive-50-512|bge-small|dense|minilm@20|k5|d7cafd8a",
+      "synthetic": 0.8261,
+      "real": 0.3
+    },
+    {
+      "key": "pymupdf-text|recursive-50-512|bge-small|hybrid|minilm@20|k5|37d94570",
+      "synthetic": 0.8261,
+      "real": 0.3
+    },
+    {
+      "key": "pymupdf-text|structure-600-300|none|sparse|minilm@20|k5|a9f961d2",
+      "synthetic": 0.6522,
+      "real": 0.3
+    },
+    {
+      "key": "pymupdf-text|structure-600-300|bge-small|hybrid|norerank|k5|f0fc28f4",
+      "synthetic": 0.6957,
+      "real": 0.3
+    },
+    {
+      "key": "docling|fixed-24-120|none|sparse|minilm@20|k5|a4aefd8c",
+      "synthetic": 0.5217,
+      "real": 0.3
+    },
+    {
+      "key": "docling|recursive-30-256|none|sparse|minilm@20|k5|96a0d7fb",
+      "synthetic": 0.6522,
+      "real": 0.3
+    },
+    {
+      "key": "docling|recursive-30-256|bge-small|dense|minilm@20|k5|dcd39e0c",
+      "synthetic": 0.6957,
+      "real": 0.3
+    },
+    {
+      "key": "docling|recursive-30-256|bge-small|hybrid|minilm@20|k5|aadd7e1d",
+      "synthetic": 0.7391,
+      "real": 0.3
+    },
+    {
+      "key": "docling|recursive-50-512|none|better-rag|norerank|k5|90632552",
+      "synthetic": 0.5652,
+      "real": 0.3
+    },
+    {
+      "key": "docling|recursive-50-512|none|better-rag|minilm@20|k5|4209d02d",
+      "synthetic": 0.8696,
+      "real": 0.3
+    },
+    {
+      "key": "docling|recursive-50-512|bge-small|dense|norerank|k5|c756194a",
+      "synthetic": 0.5652,
+      "real": 0.3
+    },
+    {
+      "key": "docling|recursive-50-512|bge-small|hybrid|norerank|k5|e4da06f6",
+      "synthetic": 0.7391,
+      "real": 0.3
+    },
+    {
+      "key": "docling|structure-600-300|bge-small|dense|norerank|k5|97480c13",
+      "synthetic": 0.6087,
+      "real": 0.3
+    },
+    {
+      "key": "docling|structure-600-300|bge-small|hybrid|minilm@20|k5|7c3b0784",
+      "synthetic": 0.6522,
+      "real": 0.3
+    },
+    {
+      "key": "pymupdf-text|fixed-24-120|none|sparse|minilm@20|k5|76e773df",
+      "synthetic": 0.5652,
+      "real": 0.2667
+    },
+    {
+      "key": "pymupdf-text|recursive-30-256|none|sparse|minilm@20|k5|5c0be380",
+      "synthetic": 0.6087,
+      "real": 0.2667
+    },
+    {
+      "key": "pymupdf-text|recursive-30-256|none|better-rag|minilm@20|k5|6fa8129e",
+      "synthetic": 0.5652,
+      "real": 0.2667
+    },
+    {
+      "key": "pymupdf-text|recursive-30-256|bge-small|hybrid|minilm@20|k5|ff91a1e9",
+      "synthetic": 0.6522,
+      "real": 0.2667
+    },
+    {
+      "key": "pymupdf-text|recursive-50-512|none|better-rag|minilm@20|k5|d0178e15",
+      "synthetic": 0.8261,
+      "real": 0.2667
+    },
+    {
+      "key": "pymupdf-text|structure-600-300|none|better-rag|minilm@20|k5|e53051fe",
+      "synthetic": 0.6522,
+      "real": 0.2667
+    },
+    {
+      "key": "docling|fixed-24-120|bge-small|hybrid|norerank|k5|f61b3e25",
+      "synthetic": 0.5217,
+      "real": 0.2667
+    },
+    {
+      "key": "docling|recursive-30-256|none|better-rag|minilm@20|k5|d411dce9",
+      "synthetic": 0.6087,
+      "real": 0.2667
+    },
+    {
+      "key": "docling|structure-600-300|none|sparse|minilm@20|k5|ca889504",
+      "synthetic": 0.6957,
+      "real": 0.2667
+    },
+    {
+      "key": "pymupdf-text|fixed-24-120|none|sparse|norerank|k5|65bfd0f2",
+      "synthetic": 0.6087,
+      "real": 0.2333
+    },
+    {
+      "key": "pymupdf-text|recursive-50-512|none|better-rag|norerank|k5|e761dd85",
+      "synthetic": 0.7391,
+      "real": 0.2333
+    },
+    {
+      "key": "docling|fixed-24-120|none|better-rag|minilm@20|k5|e611da7d",
+      "synthetic": 0.5217,
+      "real": 0.2333
+    },
+    {
+      "key": "docling|recursive-30-256|none|sparse|norerank|k5|231b72ca",
+      "synthetic": 0.7826,
+      "real": 0.2333
+    },
+    {
+      "key": "docling|recursive-50-512|none|sparse|norerank|k5|a69d9a8a",
+      "synthetic": 0.8261,
+      "real": 0.2333
+    },
+    {
+      "key": "docling|structure-600-300|none|better-rag|minilm@20|k5|e13c6395",
+      "synthetic": 0.6522,
+      "real": 0.2333
+    },
+    {
+      "key": "docling|structure-600-300|bge-small|hybrid|norerank|k5|611a0b7f",
+      "synthetic": 0.6522,
+      "real": 0.2333
+    },
+    {
+      "key": "docling|fixed-24-120|none|sparse|norerank|k5|b544200e",
+      "synthetic": 0.5217,
+      "real": 0.2
+    },
+    {
+      "key": "docling|recursive-30-256|bge-small|dense|norerank|k5|aeac01a1",
+      "synthetic": 0.6522,
+      "real": 0.2
+    },
+    {
+      "key": "docling|structure-600-300|none|sparse|norerank|k5|58027d4d",
+      "synthetic": 0.7391,
+      "real": 0.2
+    },
+    {
+      "key": "pymupdf-text|fixed-24-120|none|better-rag|norerank|k5|81958d9a",
+      "synthetic": 0.4348,
+      "real": 0.1667
+    },
+    {
+      "key": "pymupdf-text|recursive-30-256|none|sparse|norerank|k5|425c1be0",
+      "synthetic": 0.7391,
+      "real": 0.1667
+    },
+    {
+      "key": "pymupdf-text|structure-600-300|none|sparse|norerank|k5|ca6a65cf",
+      "synthetic": 0.5652,
+      "real": 0.1667
+    },
+    {
+      "key": "docling|fixed-24-120|none|better-rag|norerank|k5|18660e63",
+      "synthetic": 0.3913,
+      "real": 0.1667
+    },
+    {
+      "key": "docling|structure-600-300|none|better-rag|norerank|k5|3f24b641",
+      "synthetic": 0.4783,
+      "real": 0.1667
+    },
+    {
+      "key": "pymupdf-text|recursive-30-256|none|better-rag|norerank|k5|2a68acd4",
+      "synthetic": 0.5652,
+      "real": 0.1333
+    },
+    {
+      "key": "pymupdf-text|structure-600-300|none|better-rag|norerank|k5|e18f9265",
+      "synthetic": 0.3478,
+      "real": 0.1333
+    },
+    {
+      "key": "docling|recursive-30-256|none|better-rag|norerank|k5|bbd145d4",
+      "synthetic": 0.5652,
+      "real": 0.1333
+    }
+  ]
+}
