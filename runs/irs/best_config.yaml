@@ -1,0 +1,12 @@
+parser: docling
+chunker: structure
+chunk_params:
+  target_words: 300
+  max_words: 600
+embedder: null
+retrieval: sparse
+reranker: null
+top_k: 5
+candidates: 50
+rerank_depth: 20
+label: null
