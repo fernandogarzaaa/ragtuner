@@ -1,0 +1,12 @@
+parser: docling
+chunker: fixed
+chunk_params:
+  size: 120
+  overlap: 24
+embedder: null
+retrieval: sparse
+reranker: null
+top_k: 5
+candidates: 50
+rerank_depth: 20
+label: null

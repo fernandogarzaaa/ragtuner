@@ -1,0 +1,3177 @@
+{
+  "verdict": {
+    "metric": "recall@5",
+    "default_real": 0.36666666666666664,
+    "winner_real": 0.26666666666666666,
+    "delta_real": -0.09999999999999998,
+    "default_synth": 0.5058823529411764,
+    "winner_synth": 0.9529411764705882,
+    "delta_synth": 0.44705882352941173,
+    "passed": false,
+    "n_real": 30,
+    "n_synth": 95
+  },
+  "search": {
+    "corpus": "financebench",
+    "mode": "staged",
+    "space": {
+      "parsers": [
+        "pymupdf-text",
+        "docling"
+      ],
+      "chunkers": [
+        "fixed:{'size': 120, 'overlap': 24}",
+        "recursive:{'size': 256, 'overlap': 30}",
+        "recursive:{'size': 512, 'overlap': 50}",
+        "structure:{'target_words': 300, 'max_words': 600}"
+      ],
+      "embedders": [
+        null,
+        "bge-small"
+      ],
+      "retrievals": [
+        "sparse",
+        "better-rag",
+        "dense",
+        "hybrid"
+      ],
+      "rerankers": [
+        null,
+        "minilm"
+      ],
+      "top_k": 5,
+      "stage1_configs": 16,
+      "grid_configs": 64
+    },
+    "evaluations": 47,
+    "seconds": 1203.3,
+    "winner": {
+      "config": {
+        "parser": "docling",
+        "chunker": "structure",
+        "chunk_params": {
+          "target_words": 300,
+          "max_words": 600
+        },
+        "embedder": null,
+        "retrieval": "sparse",
+        "reranker": "minilm",
+        "top_k": 5,
+        "candidates": 50,
+        "rerank_depth": 20,
+        "label": null
+      },
+      "key": "docling|structure-600-300|none|sparse|minilm@20|k5|ca889504",
+      "metrics": {
+        "n_answerable": 85.0,
+        "recall@5": 0.9529411764705882,
+        "hit@5": 0.9529411764705882,
+        "mrr@5": 0.7768627450980392,
+        "ndcg@5": 0.821683317417937,
+        "recall@10": 1.0,
+        "hit@10": 1.0,
+        "mrr@10": 0.7830018674136321,
+        "ndcg@10": 0.8367793355251885,
+        "hit@50": 1.0,
+        "n_unanswerable": 10.0,
+        "refusal_rate@p10": 1.0
+      },
+      "real_metrics": {
+        "n_answerable": 30.0,
+        "recall@5": 0.26666666666666666,
+        "hit@5": 0.26666666666666666,
+        "mrr@5": 0.20833333333333334,
+        "ndcg@5": 0.22308453550721027,
+        "recall@10": 0.26666666666666666,
+        "hit@10": 0.26666666666666666,
+        "mrr@10": 0.20833333333333334,
+        "ndcg@10": 0.22308453550721027,
+        "hit@50": 0.5,
+        "n_unanswerable": 0.0
+      },
+      "n_questions": 95,
+      "seconds": 27.18,
+      "stage": "final",
+      "fraction": 1.0,
+      "stats": {
+        "docs": 0,
+        "chunks": 2498,
+        "parse_seconds": 0.0,
+        "parse_cache_hits": 0,
+        "chunk_seconds": 0.0,
+        "embed_seconds": 0.0,
+        "embedded_texts": 0,
+        "embed_cache_hits": 0,
+        "index_seconds": 0.26826047897338867
+      }
+    },
+    "default": {
+      "config": {
+        "parser": "pymupdf-text",
+        "chunker": "recursive",
+        "chunk_params": {
+          "size": 512,
+          "overlap": 50
+        },
+        "embedder": "bge-small",
+        "retrieval": "dense",
+        "reranker": null,
+        "top_k": 5,
+        "candidates": 50,
+        "rerank_depth": 20,
+        "label": "frozen-default"
+      },
+      "key": "pymupdf-text|recursive-50-512|bge-small|dense|norerank|k5|4813b9e7",
+      "metrics": {
+        "n_answerable": 85.0,
+        "recall@5": 0.5058823529411764,
+        "hit@5": 0.5058823529411764,
+        "mrr@5": 0.326078431372549,
+        "ndcg@5": 0.3706161697027994,
+        "recall@10": 0.6,
+        "hit@10": 0.6,
+        "mrr@10": 0.33886554621848736,
+        "ndcg@10": 0.4012750979808883,
+        "hit@50": 0.8117647058823529,
+        "n_unanswerable": 10.0,
+        "refusal_rate@p10": 1.0
+      },
+      "real_metrics": {
+        "n_answerable": 30.0,
+        "recall@5": 0.36666666666666664,
+        "hit@5": 0.36666666666666664,
+        "mrr@5": 0.14944444444444444,
+        "ndcg@5": 0.20298181009916977,
+        "recall@10": 0.4666666666666667,
+        "hit@10": 0.4666666666666667,
+        "mrr@10": 0.1630952380952381,
+        "ndcg@10": 0.23560198832447785,
+        "hit@50": 0.7333333333333333,
+        "n_unanswerable": 0.0
+      },
+      "n_questions": 95,
+      "seconds": 2.06,
+      "stage": "default",
+      "fraction": 1.0,
+      "stats": {
+        "docs": 0,
+        "chunks": 751,
+        "parse_seconds": 0.0,
+        "parse_cache_hits": 0,
+        "chunk_seconds": 0.0,
+        "embed_seconds": 0.012397289276123047,
+        "embedded_texts": 0,
+        "embed_cache_hits": 751,
+        "index_seconds": 0.01466059684753418
+      }
+    },
+    "stage1": [
+      {
+        "config": {
+          "parser": "docling",
+          "chunker": "structure",
+          "chunk_params": {
+            "target_words": 300,
+            "max_words": 600
+          },
+          "embedder": null,
+          "retrieval": "sparse",
+          "reranker": null,
+          "top_k": 5,
+          "candidates": 50,
+          "rerank_depth": 20,
+          "label": null
+        },
+        "key": "docling|structure-600-300|none|sparse|norerank|k5|58027d4d",
+        "metrics": {
+          "n_answerable": 85.0,
+          "recall@5": 0.9411764705882353,
+          "hit@5": 0.9411764705882353,
+          "mrr@5": 0.7958823529411765,
+          "ndcg@5": 0.8329324497610093,
+          "recall@10": 1.0,
+          "hit@10": 1.0,
+          "mrr@10": 0.8042623716153128,
+          "ndcg@10": 0.8524882448198221,
+          "hit@50": 1.0,
+          "n_unanswerable": 10.0,
+          "refusal_rate@p10": 1.0
+        },
+        "real_metrics": null,
+        "n_questions": 95,
+        "seconds": 0.93,
+        "stage": "s1/r3",
+        "fraction": 1.0,
+        "stats": {
+          "docs": 0,
+          "chunks": 2498,
+          "parse_seconds": 0.0,
+          "parse_cache_hits": 0,
+          "chunk_seconds": 0.0,
+          "embed_seconds": 0.0,
+          "embedded_texts": 0,
+          "embed_cache_hits": 0,
+          "index_seconds": 0.8573410511016846
+        }
+      },
+      {
+        "config": {
+          "parser": "pymupdf-text",
+          "chunker": "recursive",
+          "chunk_params": {
+            "size": 512,
+            "overlap": 50
+          },
+          "embedder": null,
+          "retrieval": "sparse",
+          "reranker": null,
+          "top_k": 5,
+          "candidates": 50,
+          "rerank_depth": 20,
+          "label": null
+        },
+        "key": "pymupdf-text|recursive-50-512|none|sparse|norerank|k5|026d4f5a",
+        "metrics": {
+          "n_answerable": 85.0,
+          "recall@5": 0.9294117647058824,
+          "hit@5": 0.9294117647058824,
+          "mrr@5": 0.690392156862745,
+          "ndcg@5": 0.7510677624091485,
+          "recall@10": 0.9764705882352941,
+          "hit@10": 0.9764705882352941,
+          "mrr@10": 0.6962371615312792,
+          "ndcg@10": 0.7658531916873665,
+          "hit@50": 1.0,
+          "n_unanswerable": 10.0,
+          "refusal_rate@p10": 1.0
+        },
+        "real_metrics": null,
+        "n_questions": 95,
+        "seconds": 0.58,
+        "stage": "s1/r3",
+        "fraction": 1.0,
+        "stats": {
+          "docs": 0,
+          "chunks": 751,
+          "parse_seconds": 0.0,
+          "parse_cache_hits": 0,
+          "chunk_seconds": 0.0,
+          "embed_seconds": 0.0,
+          "embedded_texts": 0,
+          "embed_cache_hits": 0,
+          "index_seconds": 0.283327579498291
+        }
+      },
+      {
+        "config": {
+          "parser": "docling",
+          "chunker": "recursive",
+          "chunk_params": {
+            "size": 512,
+            "overlap": 50
+          },
+          "embedder": null,
+          "retrieval": "sparse",
+          "reranker": null,
+          "top_k": 5,
+          "candidates": 50,
+          "rerank_depth": 20,
+          "label": null
+        },
+        "key": "docling|recursive-50-512|none|sparse|norerank|k5|a69d9a8a",
+        "metrics": {
+          "n_answerable": 85.0,
+          "recall@5": 0.9294117647058824,
+          "hit@5": 0.9294117647058824,
+          "mrr@5": 0.7258823529411765,
+          "ndcg@5": 0.777614404204539,
+          "recall@10": 0.9647058823529412,
+          "hit@10": 0.9647058823529412,
+          "mrr@10": 0.7305042016806722,
+          "ndcg@10": 0.7889586758151834,
+          "hit@50": 1.0,
+          "n_unanswerable": 10.0,
+          "refusal_rate@p10": 1.0
+        },
+        "real_metrics": null,
+        "n_questions": 95,
+        "seconds": 0.38,
+        "stage": "s1/r3",
+        "fraction": 1.0,
+        "stats": {
+          "docs": 0,
+          "chunks": 850,
+          "parse_seconds": 0.0,
+          "parse_cache_hits": 0,
+          "chunk_seconds": 0.0,
+          "embed_seconds": 0.0,
+          "embedded_texts": 0,
+          "embed_cache_hits": 0,
+          "index_seconds": 0.32872939109802246
+        }
+      },
+      {
+        "config": {
+          "parser": "pymupdf-text",
+          "chunker": "structure",
+          "chunk_params": {
+            "target_words": 300,
+            "max_words": 600
+          },
+          "embedder": null,
+          "retrieval": "sparse",
+          "reranker": null,
+          "top_k": 5,
+          "candidates": 50,
+          "rerank_depth": 20,
+          "label": null
+        },
+        "key": "pymupdf-text|structure-600-300|none|sparse|norerank|k5|ca6a65cf",
+        "metrics": {
+          "n_answerable": 85.0,
+          "recall@5": 0.8,
+          "hit@5": 0.8,
+          "mrr@5": 0.5868627450980393,
+          "ndcg@5": 0.6401246817178333,
+          "recall@10": 0.8705882352941177,
+          "hit@10": 0.8705882352941177,
+          "mrr@10": 0.5969234360410831,
+          "ndcg@10": 0.6636020454040972,
+          "hit@50": 0.9411764705882353,
+          "n_unanswerable": 10.0,
+          "refusal_rate@p10": 1.0
+        },
+        "real_metrics": null,
+        "n_questions": 95,
+        "seconds": 0.45,
+        "stage": "s1/r3",
+        "fraction": 1.0,
+        "stats": {
+          "docs": 0,
+          "chunks": 1966,
+          "parse_seconds": 0.0,
+          "parse_cache_hits": 0,
+          "chunk_seconds": 0.0,
+          "embed_seconds": 0.0,
+          "embedded_texts": 0,
+          "embed_cache_hits": 0,
+          "index_seconds": 0.34923219680786133
+        }
+      }
+    ],
+    "stage2": [
+      {
+        "config": {
+          "parser": "docling",
+          "chunker": "structure",
+          "chunk_params": {
+            "target_words": 300,
+            "max_words": 600
+          },
+          "embedder": null,
+          "retrieval": "sparse",
+          "reranker": "minilm",
+          "top_k": 5,
+          "candidates": 50,
+          "rerank_depth": 20,
+          "label": null
+        },
+        "key": "docling|structure-600-300|none|sparse|minilm@20|k5|ca889504",
+        "metrics": {
+          "n_answerable": 85.0,
+          "recall@5": 0.9529411764705882,
+          "hit@5": 0.9529411764705882,
+          "mrr@5": 0.7768627450980392,
+          "ndcg@5": 0.821683317417937,
+          "recall@10": 1.0,
+          "hit@10": 1.0,
+          "mrr@10": 0.7830018674136321,
+          "ndcg@10": 0.8367793355251885,
+          "hit@50": 1.0,
+          "n_unanswerable": 10.0,
+          "refusal_rate@p10": 1.0
+        },
+        "real_metrics": null,
+        "n_questions": 95,
+        "seconds": 31.78,
+        "stage": "s2/final",
+        "fraction": 1.0,
+        "stats": {
+          "docs": 0,
+          "chunks": 2498,
+          "parse_seconds": 0.0,
+          "parse_cache_hits": 0,
+          "chunk_seconds": 0.0,
+          "embed_seconds": 0.0,
+          "embedded_texts": 0,
+          "embed_cache_hits": 0,
+          "index_seconds": 0.2816288471221924
+        }
+      },
+      {
+        "config": {
+          "parser": "docling",
+          "chunker": "structure",
+          "chunk_params": {
+            "target_words": 300,
+            "max_words": 600
+          },
+          "embedder": null,
+          "retrieval": "sparse",
+          "reranker": null,
+          "top_k": 5,
+          "candidates": 50,
+          "rerank_depth": 20,
+          "label": null
+        },
+        "key": "docling|structure-600-300|none|sparse|norerank|k5|58027d4d",
+        "metrics": {
+          "n_answerable": 85.0,
+          "recall@5": 0.9411764705882353,
+          "hit@5": 0.9411764705882353,
+          "mrr@5": 0.7958823529411765,
+          "ndcg@5": 0.8329324497610093,
+          "recall@10": 1.0,
+          "hit@10": 1.0,
+          "mrr@10": 0.8042623716153128,
+          "ndcg@10": 0.8524882448198221,
+          "hit@50": 1.0,
+          "n_unanswerable": 10.0,
+          "refusal_rate@p10": 1.0
+        },
+        "real_metrics": null,
+        "n_questions": 95,
+        "seconds": 0.34,
+        "stage": "s2/final",
+        "fraction": 1.0,
+        "stats": {
+          "docs": 0,
+          "chunks": 2498,
+          "parse_seconds": 0.0,
+          "parse_cache_hits": 0,
+          "chunk_seconds": 0.0,
+          "embed_seconds": 0.0,
+          "embedded_texts": 0,
+          "embed_cache_hits": 0,
+          "index_seconds": 0.2709057331085205
+        }
+      },
+      {
+        "config": {
+          "parser": "docling",
+          "chunker": "structure",
+          "chunk_params": {
+            "target_words": 300,
+            "max_words": 600
+          },
+          "embedder": null,
+          "retrieval": "better-rag",
+          "reranker": "minilm",
+          "top_k": 5,
+          "candidates": 50,
+          "rerank_depth": 20,
+          "label": null
+        },
+        "key": "docling|structure-600-300|none|better-rag|minilm@20|k5|e13c6395",
+        "metrics": {
+          "n_answerable": 85.0,
+          "recall@5": 0.9294117647058824,
+          "hit@5": 0.9294117647058824,
+          "mrr@5": 0.7637254901960785,
+          "ndcg@5": 0.8060921821757054,
+          "recall@10": 0.9647058823529412,
+          "hit@10": 0.9647058823529412,
+          "mrr@10": 0.7683940242763773,
+          "ndcg@10": 0.8174768487913601,
+          "hit@50": 0.9882352941176471,
+          "n_unanswerable": 10.0,
+          "refusal_rate@p10": 1.0
+        },
+        "real_metrics": null,
+        "n_questions": 95,
+        "seconds": 12.45,
+        "stage": "s2/final",
+        "fraction": 1.0,
+        "stats": {
+          "docs": 0,
+          "chunks": 2498,
+          "parse_seconds": 0.0,
+          "parse_cache_hits": 0,
+          "chunk_seconds": 0.0,
+          "embed_seconds": 0.0,
+          "embedded_texts": 0,
+          "embed_cache_hits": 0,
+          "index_seconds": 0.2712876796722412
+        }
+      }
+    ],
+    "grid": null
+  },
+  "evalset": {
+    "n": 125,
+    "by_source": {
+      "synthetic-heuristic": 95,
+      "real": 30
+    },
+    "by_type": {
+      "factual": 70,
+      "numeric": 44,
+      "unanswerable": 10,
+      "multi-hop": 1
+    },
+    "by_block_type": {
+      "list": 12,
+      "paragraph": 70,
+      "table": 33,
+      "none": 10
+    },
+    "unanswerable": 10,
+    "weak_gold": 1
+  },
+  "failures": {
+    "k": 5,
+    "n_questions": 115,
+    "n_misses": 26,
+    "stage_counts": {
+      "rank": 11,
+      "deep": 14,
+      "chunk": 1
+    },
+    "diagnoses": [
+      {
+        "stage": "deep",
+        "attribute": "source",
+        "value": "real",
+        "misses": 22,
+        "questions_with_value": 30,
+        "total_misses": 26,
+        "miss_share": 0.8461538461538461,
+        "base_share": 0.2608695652173913,
+        "lift": 3.2435897435897436,
+        "fix": "Relevant chunks are outside the candidate pool: change the embedding model, switch to hybrid retrieval, or raise the candidate depth.",
+        "question_ids": [
+          "financebench_id_00222",
+          "financebench_id_00460",
+          "financebench_id_00563",
+          "financebench_id_00601",
+          "financebench_id_00605",
+          "financebench_id_00669",
+          "financebench_id_00684",
+          "financebench_id_00685",
+          "financebench_id_00711",
+          "financebench_id_00757",
+          "financebench_id_00799",
+          "financebench_id_00807",
+          "financebench_id_00917",
+          "financebench_id_00941",
+          "financebench_id_00956",
+          "financebench_id_00995",
+          "financebench_id_01079",
+          "financebench_id_01148",
+          "financebench_id_01198",
+          "financebench_id_01275",
+          "financebench_id_01279",
+          "financebench_id_01902"
+        ]
+      },
+      {
+        "stage": "deep",
+        "attribute": "overlap",
+        "value": "low",
+        "misses": 17,
+        "questions_with_value": 19,
+        "total_misses": 26,
+        "miss_share": 0.6538461538461539,
+        "base_share": 0.16521739130434782,
+        "lift": 3.9574898785425106,
+        "fix": "Questions with little word overlap miss entirely: lexical retrieval cannot bridge paraphrase; add a dense embedder or go hybrid.",
+        "question_ids": [
+          "financebench_id_00222",
+          "financebench_id_00460",
+          "financebench_id_00563",
+          "financebench_id_00605",
+          "financebench_id_00669",
+          "financebench_id_00684",
+          "financebench_id_00685",
+          "financebench_id_00711",
+          "financebench_id_00757",
+          "financebench_id_00799",
+          "financebench_id_00807",
+          "financebench_id_00917",
+          "financebench_id_00941",
+          "financebench_id_01079",
+          "financebench_id_01148",
+          "financebench_id_01198",
+          "financebench_id_01902"
+        ]
+      },
+      {
+        "stage": "deep",
+        "attribute": "question_type",
+        "value": "numeric",
+        "misses": 18,
+        "questions_with_value": 44,
+        "total_misses": 26,
+        "miss_share": 0.6923076923076923,
+        "base_share": 0.3826086956521739,
+        "lift": 1.8094405594405594,
+        "fix": "Numeric questions miss at depth: dense embeddings underweight numbers; hybrid retrieval restores exact-token matching.",
+        "question_ids": [
+          "financebench_id_00222",
+          "financebench_id_00460",
+          "financebench_id_00601",
+          "financebench_id_00605",
+          "financebench_id_00669",
+          "financebench_id_00684",
+          "financebench_id_00685",
+          "financebench_id_00757",
+          "financebench_id_00799",
+          "financebench_id_00807",
+          "financebench_id_00941",
+          "financebench_id_00956",
+          "financebench_id_01079",
+          "financebench_id_01198",
+          "financebench_id_01275",
+          "financebench_id_01279",
+          "financebench_id_01902",
+          "h-7b735f264a"
+        ]
+      },
+      {
+        "stage": "deep",
+        "attribute": "page",
+        "value": "11-50",
+        "misses": 15,
+        "questions_with_value": 49,
+        "total_misses": 26,
+        "miss_share": 0.5769230769230769,
+        "base_share": 0.4260869565217391,
+        "lift": 1.3540031397174255,
+        "fix": "Relevant chunks are outside the candidate pool: change the embedding model, switch to hybrid retrieval, or raise the candidate depth.",
+        "question_ids": [
+          "financebench_id_00460",
+          "financebench_id_00563",
+          "financebench_id_00669",
+          "financebench_id_00684",
+          "financebench_id_00685",
+          "financebench_id_00711",
+          "financebench_id_00757",
+          "financebench_id_00917",
+          "financebench_id_00956",
+          "financebench_id_01198",
+          "financebench_id_01275",
+          "financebench_id_01902",
+          "h-615e4c8bd3",
+          "h-7b735f264a",
+          "h-efbea6d9fc"
+        ]
+      },
+      {
+        "stage": "deep",
+        "attribute": "block_type",
+        "value": "table",
+        "misses": 12,
+        "questions_with_value": 33,
+        "total_misses": 26,
+        "miss_share": 0.46153846153846156,
+        "base_share": 0.28695652173913044,
+        "lift": 1.6083916083916083,
+        "fix": "Table chunks are never retrieved: index tables with heading context (structure chunker) and prefer hybrid retrieval for numeric cells.",
+        "question_ids": [
+          "financebench_id_00222",
+          "financebench_id_00460",
+          "financebench_id_00563",
+          "financebench_id_00684",
+          "financebench_id_00685",
+          "financebench_id_00711",
+          "financebench_id_00799",
+          "financebench_id_00807",
+          "financebench_id_00941",
+          "financebench_id_01275",
+          "financebench_id_01279",
+          "h-7b735f264a"
+        ]
+      },
+      {
+        "stage": "deep",
+        "attribute": "doc",
+        "value": "AMD_2022_10K",
+        "misses": 7,
+        "questions_with_value": 23,
+        "total_misses": 26,
+        "miss_share": 0.2692307692307692,
+        "base_share": 0.2,
+        "lift": 1.346153846153846,
+        "fix": "Relevant chunks are outside the candidate pool: change the embedding model, switch to hybrid retrieval, or raise the candidate depth.",
+        "question_ids": [
+          "financebench_id_00222",
+          "financebench_id_00563",
+          "financebench_id_00757",
+          "financebench_id_00917",
+          "financebench_id_00995",
+          "financebench_id_01198",
+          "financebench_id_01279"
+        ]
+      }
+    ],
+    "per_question": [
+      {
+        "id": "h-d6fd5a97eb",
+        "stage": null,
+        "first_rank": 1,
+        "block_type": "list",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "BESTBUY_2024Q2_10Q",
+        "page": "11-50"
+      },
+      {
+        "id": "h-aa4d34420e",
+        "stage": null,
+        "first_rank": 1,
+        "block_type": "list",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "JOHNSON_JOHNSON_2022_10K",
+        "page": "51+"
+      },
+      {
+        "id": "h-d74998df29",
+        "stage": null,
+        "first_rank": 1,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "JOHNSON_JOHNSON_2022_10K",
+        "page": "51+"
+      },
+      {
+        "id": "h-5086e2fb7f",
+        "stage": null,
+        "first_rank": 2,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "BESTBUY_2023_10K",
+        "page": "11-50"
+      },
+      {
+        "id": "h-2a57f5d02d",
+        "stage": null,
+        "first_rank": 2,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "BESTBUY_2023_10K",
+        "page": "11-50"
+      },
+      {
+        "id": "h-1060c8ea5a",
+        "stage": null,
+        "first_rank": 1,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "3M_2023Q2_10Q",
+        "page": "51+"
+      },
+      {
+        "id": "h-68da5adc91",
+        "stage": null,
+        "first_rank": 1,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "AMCOR_2023_10K",
+        "page": "51+"
+      },
+      {
+        "id": "h-e8d3d92b9c",
+        "stage": null,
+        "first_rank": 1,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "BESTBUY_2024Q2_10Q",
+        "page": "11-50"
+      },
+      {
+        "id": "h-bd8c1684da",
+        "stage": null,
+        "first_rank": 1,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "AMCOR_2023_10K",
+        "page": "11-50"
+      },
+      {
+        "id": "h-6ba3e9b79c",
+        "stage": null,
+        "first_rank": 1,
+        "block_type": "table",
+        "question_type": "numeric",
+        "source": "synthetic-heuristic",
+        "doc": "AMCOR_2023_10K",
+        "page": "51+"
+      },
+      {
+        "id": "h-b5fb8f1e0c",
+        "stage": null,
+        "first_rank": 1,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "AMD_2022_10K",
+        "page": "11-50"
+      },
+      {
+        "id": "h-47b4516ca7",
+        "stage": null,
+        "first_rank": 1,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "BESTBUY_2023_10K",
+        "page": "11-50"
+      },
+      {
+        "id": "h-c0bbc0e2a2",
+        "stage": null,
+        "first_rank": 1,
+        "block_type": "table",
+        "question_type": "numeric",
+        "source": "synthetic-heuristic",
+        "doc": "AMD_2022_10K",
+        "page": "51+"
+      },
+      {
+        "id": "h-209ac967a2",
+        "stage": null,
+        "first_rank": 4,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "JOHNSON_JOHNSON_2022_10K",
+        "page": "51+"
+      },
+      {
+        "id": "h-68510a65ab",
+        "stage": null,
+        "first_rank": 2,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "AMD_2022_10K",
+        "page": "11-50"
+      },
+      {
+        "id": "h-bae5ffc666",
+        "stage": null,
+        "first_rank": 1,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "AMCOR_2023_10K",
+        "page": "11-50"
+      },
+      {
+        "id": "h-4bf83e4453",
+        "stage": null,
+        "first_rank": 1,
+        "block_type": "table",
+        "question_type": "numeric",
+        "source": "synthetic-heuristic",
+        "doc": "JOHNSON_JOHNSON_2022_10K",
+        "page": "51+"
+      },
+      {
+        "id": "h-e1ef464848",
+        "stage": null,
+        "first_rank": 1,
+        "block_type": "table",
+        "question_type": "numeric",
+        "source": "synthetic-heuristic",
+        "doc": "JOHNSON_JOHNSON_2022_10K",
+        "page": "11-50"
+      },
+      {
+        "id": "h-1eca731a4b",
+        "stage": null,
+        "first_rank": 1,
+        "block_type": "list",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "3M_2023Q2_10Q",
+        "page": "51+"
+      },
+      {
+        "id": "h-0376dbf79e",
+        "stage": null,
+        "first_rank": 2,
+        "block_type": "table",
+        "question_type": "numeric",
+        "source": "synthetic-heuristic",
+        "doc": "BESTBUY_2023_10K",
+        "page": "51+"
+      },
+      {
+        "id": "h-13c36bfc62",
+        "stage": null,
+        "first_rank": 1,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "AMD_2022_10K",
+        "page": "11-50"
+      },
+      {
+        "id": "h-615e4c8bd3",
+        "stage": "rank",
+        "first_rank": 7,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "JOHNSON_JOHNSON_2022_10K",
+        "page": "11-50"
+      },
+      {
+        "id": "h-8e52c05500",
+        "stage": null,
+        "first_rank": 1,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "JOHNSON_JOHNSON_2022_10K",
+        "page": "51+"
+      },
+      {
+        "id": "h-0e22101ab1",
+        "stage": null,
+        "first_rank": 1,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "BESTBUY_2023_10K",
+        "page": "11-50"
+      },
+      {
+        "id": "h-23f3860a7f",
+        "stage": null,
+        "first_rank": 1,
+        "block_type": "list",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "BESTBUY_2024Q2_10Q",
+        "page": "11-50"
+      },
+      {
+        "id": "h-a6a094d947",
+        "stage": null,
+        "first_rank": 1,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "AMCOR_2023_10K",
+        "page": "51+"
+      },
+      {
+        "id": "h-e30d7746c6",
+        "stage": null,
+        "first_rank": 5,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "AMCOR_2023_10K",
+        "page": "11-50"
+      },
+      {
+        "id": "h-bcbbe81112",
+        "stage": null,
+        "first_rank": 2,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "BESTBUY_2024Q2_10Q",
+        "page": "11-50"
+      },
+      {
+        "id": "h-bc6d6e4df9",
+        "stage": null,
+        "first_rank": 1,
+        "block_type": "table",
+        "question_type": "numeric",
+        "source": "synthetic-heuristic",
+        "doc": "AMCOR_2023_10K",
+        "page": "51+"
+      },
+      {
+        "id": "h-eccdbaa785",
+        "stage": null,
+        "first_rank": 3,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "JOHNSON_JOHNSON_2022_10K",
+        "page": "1-10"
+      },
+      {
+        "id": "h-9bcbb26852",
+        "stage": null,
+        "first_rank": 1,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "3M_2023Q2_10Q",
+        "page": "1-10"
+      },
+      {
+        "id": "h-36ebd1cf94",
+        "stage": null,
+        "first_rank": 3,
+        "block_type": "table",
+        "question_type": "numeric",
+        "source": "synthetic-heuristic",
+        "doc": "AMD_2022_10K",
+        "page": "51+"
+      },
+      {
+        "id": "h-849687ef13",
+        "stage": null,
+        "first_rank": 1,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "AMCOR_2023_10K",
+        "page": "51+"
+      },
+      {
+        "id": "h-a378fb1c15",
+        "stage": null,
+        "first_rank": 1,
+        "block_type": "table",
+        "question_type": "numeric",
+        "source": "synthetic-heuristic",
+        "doc": "JOHNSON_JOHNSON_2022_10K",
+        "page": "51+"
+      },
+      {
+        "id": "h-284a4e2fd7",
+        "stage": null,
+        "first_rank": 2,
+        "block_type": "table",
+        "question_type": "numeric",
+        "source": "synthetic-heuristic",
+        "doc": "AMCOR_2023_10K",
+        "page": "51+"
+      },
+      {
+        "id": "h-6ada5912f3",
+        "stage": null,
+        "first_rank": 2,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "JOHNSON_JOHNSON_2022_10K",
+        "page": "51+"
+      },
+      {
+        "id": "h-d412d7c67e",
+        "stage": null,
+        "first_rank": 1,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "AMCOR_2023_10K",
+        "page": "1-10"
+      },
+      {
+        "id": "h-60b9237f5f",
+        "stage": null,
+        "first_rank": 1,
+        "block_type": "table",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "JOHNSON_JOHNSON_2023_8K_dated-2023-08-30",
+        "page": "11-50"
+      },
+      {
+        "id": "h-bfa2f16f21",
+        "stage": null,
+        "first_rank": 1,
+        "block_type": "list",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "JOHNSON_JOHNSON_2022_10K",
+        "page": "1-10"
+      },
+      {
+        "id": "h-98cef3c997",
+        "stage": null,
+        "first_rank": 1,
+        "block_type": "table",
+        "question_type": "numeric",
+        "source": "synthetic-heuristic",
+        "doc": "JOHNSON_JOHNSON_2023_8K_dated-2023-08-30",
+        "page": "1-10"
+      },
+      {
+        "id": "h-7b735f264a",
+        "stage": "rank",
+        "first_rank": 8,
+        "block_type": "table",
+        "question_type": "numeric",
+        "source": "synthetic-heuristic",
+        "doc": "3M_2023Q2_10Q",
+        "page": "11-50"
+      },
+      {
+        "id": "h-b345170c3e",
+        "stage": null,
+        "first_rank": 2,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "BESTBUY_2023_10K",
+        "page": "51+"
+      },
+      {
+        "id": "h-efbea6d9fc",
+        "stage": "rank",
+        "first_rank": 9,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "JOHNSON_JOHNSON_2022_10K",
+        "page": "11-50"
+      },
+      {
+        "id": "h-e7968d9d05",
+        "stage": null,
+        "first_rank": 1,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "AMD_2022_10K",
+        "page": "51+"
+      },
+      {
+        "id": "h-9477b923ff",
+        "stage": null,
+        "first_rank": 1,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "BESTBUY_2023_10K",
+        "page": "11-50"
+      },
+      {
+        "id": "h-6d582212eb",
+        "stage": null,
+        "first_rank": 3,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "JOHNSON_JOHNSON_2022_10K",
+        "page": "11-50"
+      },
+      {
+        "id": "h-261f984f85",
+        "stage": "rank",
+        "first_rank": 7,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "AMCOR_2023_10K",
+        "page": "51+"
+      },
+      {
+        "id": "h-6ac565eab9",
+        "stage": null,
+        "first_rank": 3,
+        "block_type": "table",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "AMCOR_2023_10K",
+        "page": "51+"
+      },
+      {
+        "id": "h-c2c09a65f2",
+        "stage": null,
+        "first_rank": 1,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "3M_2023Q2_10Q",
+        "page": "51+"
+      },
+      {
+        "id": "h-789fd23a48",
+        "stage": null,
+        "first_rank": 1,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "BESTBUY_2024Q2_10Q",
+        "page": "11-50"
+      },
+      {
+        "id": "h-dc7af90568",
+        "stage": null,
+        "first_rank": 1,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "3M_2023Q2_10Q",
+        "page": "51+"
+      },
+      {
+        "id": "h-e5d29708c7",
+        "stage": null,
+        "first_rank": 2,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "AMD_2022_10K",
+        "page": "11-50"
+      },
+      {
+        "id": "h-c0644dea3a",
+        "stage": null,
+        "first_rank": 1,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "AMD_2022_10K",
+        "page": "11-50"
+      },
+      {
+        "id": "h-0bbddfd12b",
+        "stage": null,
+        "first_rank": 1,
+        "block_type": "list",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "AMD_2022_10K",
+        "page": "51+"
+      },
+      {
+        "id": "h-c171547b59",
+        "stage": null,
+        "first_rank": 3,
+        "block_type": "table",
+        "question_type": "numeric",
+        "source": "synthetic-heuristic",
+        "doc": "JOHNSON_JOHNSON_2022_10K",
+        "page": "51+"
+      },
+      {
+        "id": "h-2c186830d1",
+        "stage": null,
+        "first_rank": 1,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "3M_2023Q2_10Q",
+        "page": "11-50"
+      },
+      {
+        "id": "h-c0f305b885",
+        "stage": null,
+        "first_rank": 1,
+        "block_type": "table",
+        "question_type": "numeric",
+        "source": "synthetic-heuristic",
+        "doc": "JOHNSON_JOHNSON_2023_8K_dated-2023-08-30",
+        "page": "11-50"
+      },
+      {
+        "id": "h-8a8a46009a",
+        "stage": null,
+        "first_rank": 2,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "AMCOR_2023_10K",
+        "page": "51+"
+      },
+      {
+        "id": "h-cdc9dc393a",
+        "stage": null,
+        "first_rank": 4,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "AMCOR_2023_10K",
+        "page": "51+"
+      },
+      {
+        "id": "h-1dfbfaca21",
+        "stage": null,
+        "first_rank": 2,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "3M_2023Q2_10Q",
+        "page": "51+"
+      },
+      {
+        "id": "h-51c3e51bb6",
+        "stage": null,
+        "first_rank": 1,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "BESTBUY_2024Q2_10Q",
+        "page": "1-10"
+      },
+      {
+        "id": "h-c5a28e0c04",
+        "stage": null,
+        "first_rank": 1,
+        "block_type": "table",
+        "question_type": "numeric",
+        "source": "synthetic-heuristic",
+        "doc": "AMD_2022_10K",
+        "page": "51+"
+      },
+      {
+        "id": "h-11aa592483",
+        "stage": null,
+        "first_rank": 1,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "BESTBUY_2023_10K",
+        "page": "51+"
+      },
+      {
+        "id": "h-ec36776856",
+        "stage": null,
+        "first_rank": 1,
+        "block_type": "table",
+        "question_type": "numeric",
+        "source": "synthetic-heuristic",
+        "doc": "JOHNSON_JOHNSON_2022_10K",
+        "page": "51+"
+      },
+      {
+        "id": "h-7a49d6a252",
+        "stage": null,
+        "first_rank": 1,
+        "block_type": "table",
+        "question_type": "numeric",
+        "source": "synthetic-heuristic",
+        "doc": "AMD_2022_10K",
+        "page": "51+"
+      },
+      {
+        "id": "h-dce38dd396",
+        "stage": null,
+        "first_rank": 3,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "BESTBUY_2024Q2_10Q",
+        "page": "11-50"
+      },
+      {
+        "id": "h-8343db23b7",
+        "stage": null,
+        "first_rank": 1,
+        "block_type": "table",
+        "question_type": "numeric",
+        "source": "synthetic-heuristic",
+        "doc": "BESTBUY_2023_10K",
+        "page": "11-50"
+      },
+      {
+        "id": "h-f47fd2559e",
+        "stage": null,
+        "first_rank": 2,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "JOHNSON_JOHNSON_2022_10K",
+        "page": "51+"
+      },
+      {
+        "id": "h-2f79979d68",
+        "stage": null,
+        "first_rank": 1,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "AMD_2022_10K",
+        "page": "11-50"
+      },
+      {
+        "id": "h-6c578e827a",
+        "stage": null,
+        "first_rank": 1,
+        "block_type": "table",
+        "question_type": "numeric",
+        "source": "synthetic-heuristic",
+        "doc": "AMD_2022_10K",
+        "page": "51+"
+      },
+      {
+        "id": "h-0505b5995e",
+        "stage": null,
+        "first_rank": 2,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "AMD_2022_10K",
+        "page": "11-50"
+      },
+      {
+        "id": "h-9b2554b16b",
+        "stage": null,
+        "first_rank": 1,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "AMD_2022_10K",
+        "page": "1-10"
+      },
+      {
+        "id": "h-f4f0a3d473",
+        "stage": null,
+        "first_rank": 2,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "AMCOR_2023_10K",
+        "page": "11-50"
+      },
+      {
+        "id": "h-69e5e2bee0",
+        "stage": null,
+        "first_rank": 1,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "AMD_2022_10K",
+        "page": "11-50"
+      },
+      {
+        "id": "h-2366b66eb2",
+        "stage": null,
+        "first_rank": 1,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "JOHNSON_JOHNSON_2022_10K",
+        "page": "51+"
+      },
+      {
+        "id": "h-a83b6a40db",
+        "stage": null,
+        "first_rank": 1,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "AMCOR_2023_10K",
+        "page": "11-50"
+      },
+      {
+        "id": "h-834343d9b4",
+        "stage": null,
+        "first_rank": 1,
+        "block_type": "list",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "3M_2023Q2_10Q",
+        "page": "51+"
+      },
+      {
+        "id": "h-5797c6da5a",
+        "stage": null,
+        "first_rank": 1,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "BESTBUY_2023_10K",
+        "page": "11-50"
+      },
+      {
+        "id": "h-ee68bc69c3",
+        "stage": null,
+        "first_rank": 1,
+        "block_type": "table",
+        "question_type": "numeric",
+        "source": "synthetic-heuristic",
+        "doc": "JOHNSON_JOHNSON_2023_8K_dated-2023-08-30",
+        "page": "1-10"
+      },
+      {
+        "id": "h-0171826dfe",
+        "stage": null,
+        "first_rank": 3,
+        "block_type": "list",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "ULTABEAUTY_2023Q4_EARNINGS",
+        "page": "1-10"
+      },
+      {
+        "id": "h-fb98fee41f",
+        "stage": null,
+        "first_rank": 2,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "JOHNSON_JOHNSON_2022_10K",
+        "page": "51+"
+      },
+      {
+        "id": "h-af5caf1d85",
+        "stage": null,
+        "first_rank": 1,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "BESTBUY_2023_10K",
+        "page": "11-50"
+      },
+      {
+        "id": "h-3f019031fa",
+        "stage": null,
+        "first_rank": 1,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "JOHNSON_JOHNSON_2022_10K",
+        "page": "11-50"
+      },
+      {
+        "id": "h-ce8794a294",
+        "stage": null,
+        "first_rank": 1,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "3M_2023Q2_10Q",
+        "page": "51+"
+      },
+      {
+        "id": "h-75fae8ba56",
+        "stage": null,
+        "first_rank": 2,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "3M_2023Q2_10Q",
+        "page": "51+"
+      },
+      {
+        "id": "financebench_id_00807",
+        "stage": "deep",
+        "first_rank": null,
+        "block_type": "table",
+        "question_type": "numeric",
+        "source": "real",
+        "doc": "3M_2023Q2_10Q",
+        "overlap": "low",
+        "page": "1-10"
+      },
+      {
+        "id": "financebench_id_00941",
+        "stage": "rank",
+        "first_rank": 12,
+        "block_type": "table",
+        "question_type": "numeric",
+        "source": "real",
+        "doc": "3M_2023Q2_10Q",
+        "overlap": "low",
+        "page": "1-10"
+      },
+      {
+        "id": "financebench_id_01858",
+        "stage": null,
+        "first_rank": 2,
+        "block_type": "paragraph",
+        "question_type": "numeric",
+        "source": "real",
+        "doc": "3M_2023Q2_10Q",
+        "overlap": "low",
+        "page": "51+"
+      },
+      {
+        "id": "financebench_id_00799",
+        "stage": "deep",
+        "first_rank": null,
+        "block_type": "table",
+        "question_type": "numeric",
+        "source": "real",
+        "doc": "AMCOR_2023_10K",
+        "overlap": "low",
+        "page": "51+"
+      },
+      {
+        "id": "financebench_id_01079",
+        "stage": "rank",
+        "first_rank": 13,
+        "block_type": "paragraph",
+        "question_type": "numeric",
+        "source": "real",
+        "doc": "AMCOR_2023_10K",
+        "overlap": "low",
+        "page": "51+"
+      },
+      {
+        "id": "financebench_id_01148",
+        "stage": "deep",
+        "first_rank": null,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "real",
+        "doc": "AMCOR_2023_10K",
+        "overlap": "low",
+        "page": "1-10"
+      },
+      {
+        "id": "financebench_id_00684",
+        "stage": "deep",
+        "first_rank": null,
+        "block_type": "table",
+        "question_type": "numeric",
+        "source": "real",
+        "doc": "AMCOR_2023_10K",
+        "overlap": "low",
+        "page": "11-50"
+      },
+      {
+        "id": "financebench_id_00222",
+        "stage": "deep",
+        "first_rank": null,
+        "block_type": "table",
+        "question_type": "numeric",
+        "source": "real",
+        "doc": "AMD_2022_10K",
+        "overlap": "low",
+        "page": "51+"
+      },
+      {
+        "id": "financebench_id_00995",
+        "stage": "rank",
+        "first_rank": 12,
+        "block_type": "list",
+        "question_type": "factual",
+        "source": "real",
+        "doc": "AMD_2022_10K",
+        "overlap": "mid",
+        "page": "1-10"
+      },
+      {
+        "id": "financebench_id_01198",
+        "stage": "deep",
+        "first_rank": null,
+        "block_type": "paragraph",
+        "question_type": "numeric",
+        "source": "real",
+        "doc": "AMD_2022_10K",
+        "overlap": "low",
+        "page": "11-50"
+      },
+      {
+        "id": "financebench_id_00917",
+        "stage": "deep",
+        "first_rank": null,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "real",
+        "doc": "AMD_2022_10K",
+        "overlap": "low",
+        "page": "11-50"
+      },
+      {
+        "id": "financebench_id_01279",
+        "stage": "rank",
+        "first_rank": 16,
+        "block_type": "table",
+        "question_type": "numeric",
+        "source": "real",
+        "doc": "AMD_2022_10K",
+        "overlap": "mid",
+        "page": "51+"
+      },
+      {
+        "id": "financebench_id_00563",
+        "stage": "deep",
+        "first_rank": null,
+        "block_type": "table",
+        "question_type": "factual",
+        "source": "real",
+        "doc": "AMD_2022_10K",
+        "overlap": "low",
+        "page": "11-50"
+      },
+      {
+        "id": "financebench_id_00757",
+        "stage": "deep",
+        "first_rank": null,
+        "block_type": "paragraph",
+        "question_type": "numeric",
+        "source": "real",
+        "doc": "AMD_2022_10K",
+        "overlap": "low",
+        "page": "11-50"
+      },
+      {
+        "id": "financebench_id_00685",
+        "stage": "deep",
+        "first_rank": null,
+        "block_type": "table",
+        "question_type": "numeric",
+        "source": "real",
+        "doc": "BESTBUY_2023_10K",
+        "overlap": "low",
+        "page": "11-50"
+      },
+      {
+        "id": "financebench_id_01077",
+        "stage": null,
+        "first_rank": 2,
+        "block_type": "paragraph",
+        "question_type": "numeric",
+        "source": "real",
+        "doc": "BESTBUY_2023_10K",
+        "overlap": "low",
+        "page": "51+"
+      },
+      {
+        "id": "financebench_id_01275",
+        "stage": "rank",
+        "first_rank": 11,
+        "block_type": "table",
+        "question_type": "numeric",
+        "source": "real",
+        "doc": "BESTBUY_2023_10K",
+        "overlap": "mid",
+        "page": "11-50"
+      },
+      {
+        "id": "financebench_id_00288",
+        "stage": null,
+        "first_rank": 1,
+        "block_type": "table",
+        "question_type": "numeric",
+        "source": "real",
+        "doc": "BESTBUY_2024Q2_10Q",
+        "overlap": "mid",
+        "page": "11-50"
+      },
+      {
+        "id": "financebench_id_00460",
+        "stage": "chunk",
+        "first_rank": null,
+        "block_type": "table",
+        "question_type": "numeric",
+        "source": "real",
+        "doc": "BESTBUY_2024Q2_10Q",
+        "overlap": "low",
+        "page": "11-50"
+      },
+      {
+        "id": "financebench_id_01902",
+        "stage": "deep",
+        "first_rank": null,
+        "block_type": "list",
+        "question_type": "numeric",
+        "source": "real",
+        "doc": "BESTBUY_2024Q2_10Q",
+        "overlap": "low",
+        "page": "11-50"
+      },
+      {
+        "id": "financebench_id_00956",
+        "stage": "deep",
+        "first_rank": null,
+        "block_type": "paragraph",
+        "question_type": "numeric",
+        "source": "real",
+        "doc": "JOHNSON_JOHNSON_2022_10K",
+        "overlap": "mid",
+        "page": "11-50"
+      },
+      {
+        "id": "financebench_id_00669",
+        "stage": "deep",
+        "first_rank": null,
+        "block_type": "paragraph",
+        "question_type": "numeric",
+        "source": "real",
+        "doc": "JOHNSON_JOHNSON_2022_10K",
+        "overlap": "low",
+        "page": "11-50"
+      },
+      {
+        "id": "financebench_id_00711",
+        "stage": "deep",
+        "first_rank": null,
+        "block_type": "table",
+        "question_type": "multi-hop",
+        "source": "real",
+        "doc": "JOHNSON_JOHNSON_2022_10K",
+        "overlap": "low",
+        "page": "11-50"
+      },
+      {
+        "id": "financebench_id_01488",
+        "stage": null,
+        "first_rank": 1,
+        "block_type": "paragraph",
+        "question_type": "numeric",
+        "source": "real",
+        "doc": "JOHNSON_JOHNSON_2023_8K_dated-2023-08-30",
+        "overlap": "high",
+        "page": "1-10"
+      },
+      {
+        "id": "financebench_id_01490",
+        "stage": null,
+        "first_rank": 1,
+        "block_type": "paragraph",
+        "question_type": "numeric",
+        "source": "real",
+        "doc": "JOHNSON_JOHNSON_2023_8K_dated-2023-08-30",
+        "overlap": "high",
+        "page": "1-10"
+      },
+      {
+        "id": "financebench_id_01491",
+        "stage": null,
+        "first_rank": 1,
+        "block_type": "paragraph",
+        "question_type": "numeric",
+        "source": "real",
+        "doc": "JOHNSON_JOHNSON_2023_8K_dated-2023-08-30",
+        "overlap": "high",
+        "page": "1-10"
+      },
+      {
+        "id": "financebench_id_00601",
+        "stage": "rank",
+        "first_rank": 30,
+        "block_type": "list",
+        "question_type": "numeric",
+        "source": "real",
+        "doc": "ULTABEAUTY_2023Q4_EARNINGS",
+        "overlap": "mid",
+        "page": "1-10"
+      },
+      {
+        "id": "financebench_id_00603",
+        "stage": null,
+        "first_rank": 1,
+        "block_type": "paragraph",
+        "question_type": "numeric",
+        "source": "real",
+        "doc": "ULTABEAUTY_2023Q4_EARNINGS",
+        "overlap": "mid",
+        "page": "1-10"
+      },
+      {
+        "id": "financebench_id_00605",
+        "stage": "rank",
+        "first_rank": 25,
+        "block_type": "paragraph",
+        "question_type": "numeric",
+        "source": "real",
+        "doc": "ULTABEAUTY_2023Q4_EARNINGS",
+        "overlap": "low",
+        "page": "1-10"
+      },
+      {
+        "id": "financebench_id_00606",
+        "stage": null,
+        "first_rank": 4,
+        "block_type": "list",
+        "question_type": "numeric",
+        "source": "real",
+        "doc": "ULTABEAUTY_2023Q4_EARNINGS",
+        "overlap": "mid",
+        "page": "1-10"
+      }
+    ]
+  },
+  "default_failures": {
+    "k": 5,
+    "n_questions": 115,
+    "n_misses": 61,
+    "stage_counts": {
+      "rank": 37,
+      "deep": 24
+    },
+    "diagnoses": [
+      {
+        "stage": "rank",
+        "attribute": "overlap",
+        "value": "low",
+        "misses": 15,
+        "questions_with_value": 19,
+        "total_misses": 61,
+        "miss_share": 0.2459016393442623,
+        "base_share": 0.16521739130434782,
+        "lift": 1.4883520276100086,
+        "fix": "Relevant chunks are retrieved but ranked below top-k: add a cross-encoder reranker, or lower the candidate pool noise with hybrid fusion.",
+        "question_ids": [
+          "financebench_id_00222",
+          "financebench_id_00563",
+          "financebench_id_00605",
+          "financebench_id_00669",
+          "financebench_id_00685",
+          "financebench_id_00711",
+          "financebench_id_00757",
+          "financebench_id_00799",
+          "financebench_id_00807",
+          "financebench_id_00917",
+          "financebench_id_00941",
+          "financebench_id_01077",
+          "financebench_id_01079",
+          "financebench_id_01198",
+          "financebench_id_01902"
+        ]
+      },
+      {
+        "stage": "rank",
+        "attribute": "doc",
+        "value": "3M_2023Q2_10Q",
+        "misses": 10,
+        "questions_with_value": 14,
+        "total_misses": 61,
+        "miss_share": 0.16393442622950818,
+        "base_share": 0.12173913043478261,
+        "lift": 1.3466042154566744,
+        "fix": "Relevant chunks are retrieved but ranked below top-k: add a cross-encoder reranker, or lower the candidate pool noise with hybrid fusion.",
+        "question_ids": [
+          "financebench_id_00807",
+          "financebench_id_00941",
+          "h-1dfbfaca21",
+          "h-2c186830d1",
+          "h-75fae8ba56",
+          "h-7b735f264a",
+          "h-834343d9b4",
+          "h-9bcbb26852",
+          "h-c2c09a65f2",
+          "h-dc7af90568"
+        ]
+      },
+      {
+        "stage": "rank",
+        "attribute": "doc",
+        "value": "BESTBUY_2024Q2_10Q",
+        "misses": 7,
+        "questions_with_value": 10,
+        "total_misses": 61,
+        "miss_share": 0.11475409836065574,
+        "base_share": 0.08695652173913043,
+        "lift": 1.319672131147541,
+        "fix": "Relevant chunks are retrieved but ranked below top-k: add a cross-encoder reranker, or lower the candidate pool noise with hybrid fusion.",
+        "question_ids": [
+          "financebench_id_00288",
+          "financebench_id_01902",
+          "h-23f3860a7f",
+          "h-51c3e51bb6",
+          "h-d6fd5a97eb",
+          "h-dce38dd396",
+          "h-e8d3d92b9c"
+        ]
+      }
+    ],
+    "per_question": [
+      {
+        "id": "h-d6fd5a97eb",
+        "stage": "rank",
+        "first_rank": 22,
+        "block_type": "list",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "BESTBUY_2024Q2_10Q",
+        "page": "11-50"
+      },
+      {
+        "id": "h-aa4d34420e",
+        "stage": null,
+        "first_rank": 2,
+        "block_type": "list",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "JOHNSON_JOHNSON_2022_10K",
+        "page": "51+"
+      },
+      {
+        "id": "h-d74998df29",
+        "stage": null,
+        "first_rank": 5,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "JOHNSON_JOHNSON_2022_10K",
+        "page": "51+"
+      },
+      {
+        "id": "h-5086e2fb7f",
+        "stage": "deep",
+        "first_rank": null,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "BESTBUY_2023_10K",
+        "page": "11-50"
+      },
+      {
+        "id": "h-2a57f5d02d",
+        "stage": null,
+        "first_rank": 4,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "BESTBUY_2023_10K",
+        "page": "11-50"
+      },
+      {
+        "id": "h-1060c8ea5a",
+        "stage": null,
+        "first_rank": 5,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "3M_2023Q2_10Q",
+        "page": "51+"
+      },
+      {
+        "id": "h-68da5adc91",
+        "stage": "rank",
+        "first_rank": 8,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "AMCOR_2023_10K",
+        "page": "51+"
+      },
+      {
+        "id": "h-e8d3d92b9c",
+        "stage": "deep",
+        "first_rank": null,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "BESTBUY_2024Q2_10Q",
+        "page": "11-50"
+      },
+      {
+        "id": "h-bd8c1684da",
+        "stage": "rank",
+        "first_rank": 11,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "AMCOR_2023_10K",
+        "page": "11-50"
+      },
+      {
+        "id": "h-6ba3e9b79c",
+        "stage": null,
+        "first_rank": 1,
+        "block_type": "table",
+        "question_type": "numeric",
+        "source": "synthetic-heuristic",
+        "doc": "AMCOR_2023_10K",
+        "page": "51+"
+      },
+      {
+        "id": "h-b5fb8f1e0c",
+        "stage": null,
+        "first_rank": 4,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "AMD_2022_10K",
+        "page": "11-50"
+      },
+      {
+        "id": "h-47b4516ca7",
+        "stage": "deep",
+        "first_rank": null,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "BESTBUY_2023_10K",
+        "page": "11-50"
+      },
+      {
+        "id": "h-c0bbc0e2a2",
+        "stage": "rank",
+        "first_rank": 10,
+        "block_type": "table",
+        "question_type": "numeric",
+        "source": "synthetic-heuristic",
+        "doc": "AMD_2022_10K",
+        "page": "51+"
+      },
+      {
+        "id": "h-209ac967a2",
+        "stage": null,
+        "first_rank": 3,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "JOHNSON_JOHNSON_2022_10K",
+        "page": "51+"
+      },
+      {
+        "id": "h-68510a65ab",
+        "stage": null,
+        "first_rank": 1,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "AMD_2022_10K",
+        "page": "11-50"
+      },
+      {
+        "id": "h-bae5ffc666",
+        "stage": null,
+        "first_rank": 1,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "AMCOR_2023_10K",
+        "page": "11-50"
+      },
+      {
+        "id": "h-4bf83e4453",
+        "stage": null,
+        "first_rank": 2,
+        "block_type": "table",
+        "question_type": "numeric",
+        "source": "synthetic-heuristic",
+        "doc": "JOHNSON_JOHNSON_2022_10K",
+        "page": "51+"
+      },
+      {
+        "id": "h-e1ef464848",
+        "stage": null,
+        "first_rank": 3,
+        "block_type": "table",
+        "question_type": "numeric",
+        "source": "synthetic-heuristic",
+        "doc": "JOHNSON_JOHNSON_2022_10K",
+        "page": "11-50"
+      },
+      {
+        "id": "h-1eca731a4b",
+        "stage": null,
+        "first_rank": 1,
+        "block_type": "list",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "3M_2023Q2_10Q",
+        "page": "51+"
+      },
+      {
+        "id": "h-0376dbf79e",
+        "stage": null,
+        "first_rank": 1,
+        "block_type": "table",
+        "question_type": "numeric",
+        "source": "synthetic-heuristic",
+        "doc": "BESTBUY_2023_10K",
+        "page": "51+"
+      },
+      {
+        "id": "h-13c36bfc62",
+        "stage": "rank",
+        "first_rank": 14,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "AMD_2022_10K",
+        "page": "11-50"
+      },
+      {
+        "id": "h-615e4c8bd3",
+        "stage": null,
+        "first_rank": 5,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "JOHNSON_JOHNSON_2022_10K",
+        "page": "11-50"
+      },
+      {
+        "id": "h-8e52c05500",
+        "stage": null,
+        "first_rank": 5,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "JOHNSON_JOHNSON_2022_10K",
+        "page": "51+"
+      },
+      {
+        "id": "h-0e22101ab1",
+        "stage": null,
+        "first_rank": 4,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "BESTBUY_2023_10K",
+        "page": "11-50"
+      },
+      {
+        "id": "h-23f3860a7f",
+        "stage": "rank",
+        "first_rank": 48,
+        "block_type": "list",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "BESTBUY_2024Q2_10Q",
+        "page": "11-50"
+      },
+      {
+        "id": "h-a6a094d947",
+        "stage": null,
+        "first_rank": 2,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "AMCOR_2023_10K",
+        "page": "51+"
+      },
+      {
+        "id": "h-e30d7746c6",
+        "stage": "deep",
+        "first_rank": null,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "AMCOR_2023_10K",
+        "page": "11-50"
+      },
+      {
+        "id": "h-bcbbe81112",
+        "stage": null,
+        "first_rank": 1,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "BESTBUY_2024Q2_10Q",
+        "page": "11-50"
+      },
+      {
+        "id": "h-bc6d6e4df9",
+        "stage": "rank",
+        "first_rank": 7,
+        "block_type": "table",
+        "question_type": "numeric",
+        "source": "synthetic-heuristic",
+        "doc": "AMCOR_2023_10K",
+        "page": "51+"
+      },
+      {
+        "id": "h-eccdbaa785",
+        "stage": null,
+        "first_rank": 4,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "JOHNSON_JOHNSON_2022_10K",
+        "page": "1-10"
+      },
+      {
+        "id": "h-9bcbb26852",
+        "stage": "deep",
+        "first_rank": null,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "3M_2023Q2_10Q",
+        "page": "1-10"
+      },
+      {
+        "id": "h-36ebd1cf94",
+        "stage": "rank",
+        "first_rank": 13,
+        "block_type": "table",
+        "question_type": "numeric",
+        "source": "synthetic-heuristic",
+        "doc": "AMD_2022_10K",
+        "page": "51+"
+      },
+      {
+        "id": "h-849687ef13",
+        "stage": "deep",
+        "first_rank": null,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "AMCOR_2023_10K",
+        "page": "51+"
+      },
+      {
+        "id": "h-a378fb1c15",
+        "stage": null,
+        "first_rank": 1,
+        "block_type": "table",
+        "question_type": "numeric",
+        "source": "synthetic-heuristic",
+        "doc": "JOHNSON_JOHNSON_2022_10K",
+        "page": "51+"
+      },
+      {
+        "id": "h-284a4e2fd7",
+        "stage": null,
+        "first_rank": 2,
+        "block_type": "table",
+        "question_type": "numeric",
+        "source": "synthetic-heuristic",
+        "doc": "AMCOR_2023_10K",
+        "page": "51+"
+      },
+      {
+        "id": "h-6ada5912f3",
+        "stage": "rank",
+        "first_rank": 34,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "JOHNSON_JOHNSON_2022_10K",
+        "page": "51+"
+      },
+      {
+        "id": "h-d412d7c67e",
+        "stage": null,
+        "first_rank": 2,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "AMCOR_2023_10K",
+        "page": "1-10"
+      },
+      {
+        "id": "h-60b9237f5f",
+        "stage": "rank",
+        "first_rank": 40,
+        "block_type": "table",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "JOHNSON_JOHNSON_2023_8K_dated-2023-08-30",
+        "page": "11-50"
+      },
+      {
+        "id": "h-bfa2f16f21",
+        "stage": null,
+        "first_rank": 1,
+        "block_type": "list",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "JOHNSON_JOHNSON_2022_10K",
+        "page": "1-10"
+      },
+      {
+        "id": "h-98cef3c997",
+        "stage": null,
+        "first_rank": 1,
+        "block_type": "table",
+        "question_type": "numeric",
+        "source": "synthetic-heuristic",
+        "doc": "JOHNSON_JOHNSON_2023_8K_dated-2023-08-30",
+        "page": "1-10"
+      },
+      {
+        "id": "h-7b735f264a",
+        "stage": "rank",
+        "first_rank": 7,
+        "block_type": "table",
+        "question_type": "numeric",
+        "source": "synthetic-heuristic",
+        "doc": "3M_2023Q2_10Q",
+        "page": "11-50"
+      },
+      {
+        "id": "h-b345170c3e",
+        "stage": "deep",
+        "first_rank": null,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "BESTBUY_2023_10K",
+        "page": "51+"
+      },
+      {
+        "id": "h-efbea6d9fc",
+        "stage": "deep",
+        "first_rank": null,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "JOHNSON_JOHNSON_2022_10K",
+        "page": "11-50"
+      },
+      {
+        "id": "h-e7968d9d05",
+        "stage": "rank",
+        "first_rank": 11,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "AMD_2022_10K",
+        "page": "51+"
+      },
+      {
+        "id": "h-9477b923ff",
+        "stage": null,
+        "first_rank": 1,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "BESTBUY_2023_10K",
+        "page": "11-50"
+      },
+      {
+        "id": "h-6d582212eb",
+        "stage": "deep",
+        "first_rank": null,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "JOHNSON_JOHNSON_2022_10K",
+        "page": "11-50"
+      },
+      {
+        "id": "h-261f984f85",
+        "stage": "rank",
+        "first_rank": 39,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "AMCOR_2023_10K",
+        "page": "51+"
+      },
+      {
+        "id": "h-6ac565eab9",
+        "stage": null,
+        "first_rank": 2,
+        "block_type": "table",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "AMCOR_2023_10K",
+        "page": "51+"
+      },
+      {
+        "id": "h-c2c09a65f2",
+        "stage": "rank",
+        "first_rank": 33,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "3M_2023Q2_10Q",
+        "page": "51+"
+      },
+      {
+        "id": "h-789fd23a48",
+        "stage": null,
+        "first_rank": 1,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "BESTBUY_2024Q2_10Q",
+        "page": "11-50"
+      },
+      {
+        "id": "h-dc7af90568",
+        "stage": "deep",
+        "first_rank": null,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "3M_2023Q2_10Q",
+        "page": "51+"
+      },
+      {
+        "id": "h-e5d29708c7",
+        "stage": null,
+        "first_rank": 2,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "AMD_2022_10K",
+        "page": "11-50"
+      },
+      {
+        "id": "h-c0644dea3a",
+        "stage": null,
+        "first_rank": 4,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "AMD_2022_10K",
+        "page": "11-50"
+      },
+      {
+        "id": "h-0bbddfd12b",
+        "stage": null,
+        "first_rank": 4,
+        "block_type": "list",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "AMD_2022_10K",
+        "page": "51+"
+      },
+      {
+        "id": "h-c171547b59",
+        "stage": null,
+        "first_rank": 1,
+        "block_type": "table",
+        "question_type": "numeric",
+        "source": "synthetic-heuristic",
+        "doc": "JOHNSON_JOHNSON_2022_10K",
+        "page": "51+"
+      },
+      {
+        "id": "h-2c186830d1",
+        "stage": "rank",
+        "first_rank": 28,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "3M_2023Q2_10Q",
+        "page": "11-50"
+      },
+      {
+        "id": "h-c0f305b885",
+        "stage": "deep",
+        "first_rank": null,
+        "block_type": "table",
+        "question_type": "numeric",
+        "source": "synthetic-heuristic",
+        "doc": "JOHNSON_JOHNSON_2023_8K_dated-2023-08-30",
+        "page": "11-50"
+      },
+      {
+        "id": "h-8a8a46009a",
+        "stage": "rank",
+        "first_rank": 11,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "AMCOR_2023_10K",
+        "page": "51+"
+      },
+      {
+        "id": "h-cdc9dc393a",
+        "stage": null,
+        "first_rank": 2,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "AMCOR_2023_10K",
+        "page": "51+"
+      },
+      {
+        "id": "h-1dfbfaca21",
+        "stage": "rank",
+        "first_rank": 6,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "3M_2023Q2_10Q",
+        "page": "51+"
+      },
+      {
+        "id": "h-51c3e51bb6",
+        "stage": "rank",
+        "first_rank": 11,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "BESTBUY_2024Q2_10Q",
+        "page": "1-10"
+      },
+      {
+        "id": "h-c5a28e0c04",
+        "stage": null,
+        "first_rank": 1,
+        "block_type": "table",
+        "question_type": "numeric",
+        "source": "synthetic-heuristic",
+        "doc": "AMD_2022_10K",
+        "page": "51+"
+      },
+      {
+        "id": "h-11aa592483",
+        "stage": "rank",
+        "first_rank": 10,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "BESTBUY_2023_10K",
+        "page": "51+"
+      },
+      {
+        "id": "h-ec36776856",
+        "stage": "deep",
+        "first_rank": null,
+        "block_type": "table",
+        "question_type": "numeric",
+        "source": "synthetic-heuristic",
+        "doc": "JOHNSON_JOHNSON_2022_10K",
+        "page": "51+"
+      },
+      {
+        "id": "h-7a49d6a252",
+        "stage": null,
+        "first_rank": 1,
+        "block_type": "table",
+        "question_type": "numeric",
+        "source": "synthetic-heuristic",
+        "doc": "AMD_2022_10K",
+        "page": "51+"
+      },
+      {
+        "id": "h-dce38dd396",
+        "stage": "rank",
+        "first_rank": 21,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "BESTBUY_2024Q2_10Q",
+        "page": "11-50"
+      },
+      {
+        "id": "h-8343db23b7",
+        "stage": null,
+        "first_rank": 2,
+        "block_type": "table",
+        "question_type": "numeric",
+        "source": "synthetic-heuristic",
+        "doc": "BESTBUY_2023_10K",
+        "page": "11-50"
+      },
+      {
+        "id": "h-f47fd2559e",
+        "stage": "rank",
+        "first_rank": 39,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "JOHNSON_JOHNSON_2022_10K",
+        "page": "51+"
+      },
+      {
+        "id": "h-2f79979d68",
+        "stage": null,
+        "first_rank": 1,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "AMD_2022_10K",
+        "page": "11-50"
+      },
+      {
+        "id": "h-6c578e827a",
+        "stage": null,
+        "first_rank": 2,
+        "block_type": "table",
+        "question_type": "numeric",
+        "source": "synthetic-heuristic",
+        "doc": "AMD_2022_10K",
+        "page": "51+"
+      },
+      {
+        "id": "h-0505b5995e",
+        "stage": null,
+        "first_rank": 1,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "AMD_2022_10K",
+        "page": "11-50"
+      },
+      {
+        "id": "h-9b2554b16b",
+        "stage": null,
+        "first_rank": 2,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "AMD_2022_10K",
+        "page": "1-10"
+      },
+      {
+        "id": "h-f4f0a3d473",
+        "stage": null,
+        "first_rank": 1,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "AMCOR_2023_10K",
+        "page": "11-50"
+      },
+      {
+        "id": "h-69e5e2bee0",
+        "stage": "deep",
+        "first_rank": null,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "AMD_2022_10K",
+        "page": "11-50"
+      },
+      {
+        "id": "h-2366b66eb2",
+        "stage": "rank",
+        "first_rank": 6,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "JOHNSON_JOHNSON_2022_10K",
+        "page": "51+"
+      },
+      {
+        "id": "h-a83b6a40db",
+        "stage": "rank",
+        "first_rank": 33,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "AMCOR_2023_10K",
+        "page": "11-50"
+      },
+      {
+        "id": "h-834343d9b4",
+        "stage": "rank",
+        "first_rank": 7,
+        "block_type": "list",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "3M_2023Q2_10Q",
+        "page": "51+"
+      },
+      {
+        "id": "h-5797c6da5a",
+        "stage": null,
+        "first_rank": 1,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "BESTBUY_2023_10K",
+        "page": "11-50"
+      },
+      {
+        "id": "h-ee68bc69c3",
+        "stage": "deep",
+        "first_rank": null,
+        "block_type": "table",
+        "question_type": "numeric",
+        "source": "synthetic-heuristic",
+        "doc": "JOHNSON_JOHNSON_2023_8K_dated-2023-08-30",
+        "page": "1-10"
+      },
+      {
+        "id": "h-0171826dfe",
+        "stage": "deep",
+        "first_rank": null,
+        "block_type": "list",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "ULTABEAUTY_2023Q4_EARNINGS",
+        "page": "1-10"
+      },
+      {
+        "id": "h-fb98fee41f",
+        "stage": "rank",
+        "first_rank": 36,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "JOHNSON_JOHNSON_2022_10K",
+        "page": "51+"
+      },
+      {
+        "id": "h-af5caf1d85",
+        "stage": null,
+        "first_rank": 1,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "BESTBUY_2023_10K",
+        "page": "11-50"
+      },
+      {
+        "id": "h-3f019031fa",
+        "stage": "rank",
+        "first_rank": 29,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "JOHNSON_JOHNSON_2022_10K",
+        "page": "11-50"
+      },
+      {
+        "id": "h-ce8794a294",
+        "stage": null,
+        "first_rank": 4,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "3M_2023Q2_10Q",
+        "page": "51+"
+      },
+      {
+        "id": "h-75fae8ba56",
+        "stage": "deep",
+        "first_rank": null,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "3M_2023Q2_10Q",
+        "page": "51+"
+      },
+      {
+        "id": "financebench_id_00807",
+        "stage": "deep",
+        "first_rank": null,
+        "block_type": "table",
+        "question_type": "numeric",
+        "source": "real",
+        "doc": "3M_2023Q2_10Q",
+        "overlap": "low",
+        "page": "1-10"
+      },
+      {
+        "id": "financebench_id_00941",
+        "stage": "rank",
+        "first_rank": 23,
+        "block_type": "table",
+        "question_type": "numeric",
+        "source": "real",
+        "doc": "3M_2023Q2_10Q",
+        "overlap": "low",
+        "page": "1-10"
+      },
+      {
+        "id": "financebench_id_01858",
+        "stage": null,
+        "first_rank": 5,
+        "block_type": "paragraph",
+        "question_type": "numeric",
+        "source": "real",
+        "doc": "3M_2023Q2_10Q",
+        "overlap": "low",
+        "page": "51+"
+      },
+      {
+        "id": "financebench_id_00799",
+        "stage": "rank",
+        "first_rank": 17,
+        "block_type": "table",
+        "question_type": "numeric",
+        "source": "real",
+        "doc": "AMCOR_2023_10K",
+        "overlap": "low",
+        "page": "51+"
+      },
+      {
+        "id": "financebench_id_01079",
+        "stage": "deep",
+        "first_rank": null,
+        "block_type": "paragraph",
+        "question_type": "numeric",
+        "source": "real",
+        "doc": "AMCOR_2023_10K",
+        "overlap": "low",
+        "page": "51+"
+      },
+      {
+        "id": "financebench_id_01148",
+        "stage": null,
+        "first_rank": 3,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "real",
+        "doc": "AMCOR_2023_10K",
+        "overlap": "low",
+        "page": "1-10"
+      },
+      {
+        "id": "financebench_id_00684",
+        "stage": null,
+        "first_rank": 2,
+        "block_type": "table",
+        "question_type": "numeric",
+        "source": "real",
+        "doc": "AMCOR_2023_10K",
+        "overlap": "low",
+        "page": "11-50"
+      },
+      {
+        "id": "financebench_id_00222",
+        "stage": "deep",
+        "first_rank": null,
+        "block_type": "table",
+        "question_type": "numeric",
+        "source": "real",
+        "doc": "AMD_2022_10K",
+        "overlap": "low",
+        "page": "51+"
+      },
+      {
+        "id": "financebench_id_00995",
+        "stage": null,
+        "first_rank": 2,
+        "block_type": "list",
+        "question_type": "factual",
+        "source": "real",
+        "doc": "AMD_2022_10K",
+        "overlap": "mid",
+        "page": "1-10"
+      },
+      {
+        "id": "financebench_id_01198",
+        "stage": "rank",
+        "first_rank": 21,
+        "block_type": "paragraph",
+        "question_type": "numeric",
+        "source": "real",
+        "doc": "AMD_2022_10K",
+        "overlap": "low",
+        "page": "11-50"
+      },
+      {
+        "id": "financebench_id_00917",
+        "stage": "deep",
+        "first_rank": null,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "real",
+        "doc": "AMD_2022_10K",
+        "overlap": "low",
+        "page": "11-50"
+      },
+      {
+        "id": "financebench_id_01279",
+        "stage": null,
+        "first_rank": 4,
+        "block_type": "table",
+        "question_type": "numeric",
+        "source": "real",
+        "doc": "AMD_2022_10K",
+        "overlap": "mid",
+        "page": "51+"
+      },
+      {
+        "id": "financebench_id_00563",
+        "stage": "rank",
+        "first_rank": 28,
+        "block_type": "table",
+        "question_type": "factual",
+        "source": "real",
+        "doc": "AMD_2022_10K",
+        "overlap": "low",
+        "page": "11-50"
+      },
+      {
+        "id": "financebench_id_00757",
+        "stage": "rank",
+        "first_rank": 44,
+        "block_type": "paragraph",
+        "question_type": "numeric",
+        "source": "real",
+        "doc": "AMD_2022_10K",
+        "overlap": "low",
+        "page": "11-50"
+      },
+      {
+        "id": "financebench_id_00685",
+        "stage": "rank",
+        "first_rank": 39,
+        "block_type": "table",
+        "question_type": "numeric",
+        "source": "real",
+        "doc": "BESTBUY_2023_10K",
+        "overlap": "low",
+        "page": "11-50"
+      },
+      {
+        "id": "financebench_id_01077",
+        "stage": "deep",
+        "first_rank": null,
+        "block_type": "paragraph",
+        "question_type": "numeric",
+        "source": "real",
+        "doc": "BESTBUY_2023_10K",
+        "overlap": "low",
+        "page": "51+"
+      },
+      {
+        "id": "financebench_id_01275",
+        "stage": "rank",
+        "first_rank": 18,
+        "block_type": "table",
+        "question_type": "numeric",
+        "source": "real",
+        "doc": "BESTBUY_2023_10K",
+        "overlap": "mid",
+        "page": "11-50"
+      },
+      {
+        "id": "financebench_id_00288",
+        "stage": "rank",
+        "first_rank": 20,
+        "block_type": "table",
+        "question_type": "numeric",
+        "source": "real",
+        "doc": "BESTBUY_2024Q2_10Q",
+        "overlap": "mid",
+        "page": "11-50"
+      },
+      {
+        "id": "financebench_id_00460",
+        "stage": null,
+        "first_rank": 2,
+        "block_type": "table",
+        "question_type": "numeric",
+        "source": "real",
+        "doc": "BESTBUY_2024Q2_10Q",
+        "overlap": "low",
+        "page": "11-50"
+      },
+      {
+        "id": "financebench_id_01902",
+        "stage": "rank",
+        "first_rank": 6,
+        "block_type": "list",
+        "question_type": "numeric",
+        "source": "real",
+        "doc": "BESTBUY_2024Q2_10Q",
+        "overlap": "low",
+        "page": "11-50"
+      },
+      {
+        "id": "financebench_id_00956",
+        "stage": "deep",
+        "first_rank": null,
+        "block_type": "paragraph",
+        "question_type": "numeric",
+        "source": "real",
+        "doc": "JOHNSON_JOHNSON_2022_10K",
+        "overlap": "mid",
+        "page": "11-50"
+      },
+      {
+        "id": "financebench_id_00669",
+        "stage": "deep",
+        "first_rank": null,
+        "block_type": "paragraph",
+        "question_type": "numeric",
+        "source": "real",
+        "doc": "JOHNSON_JOHNSON_2022_10K",
+        "overlap": "low",
+        "page": "11-50"
+      },
+      {
+        "id": "financebench_id_00711",
+        "stage": "deep",
+        "first_rank": null,
+        "block_type": "table",
+        "question_type": "multi-hop",
+        "source": "real",
+        "doc": "JOHNSON_JOHNSON_2022_10K",
+        "overlap": "low",
+        "page": "11-50"
+      },
+      {
+        "id": "financebench_id_01488",
+        "stage": null,
+        "first_rank": 4,
+        "block_type": "paragraph",
+        "question_type": "numeric",
+        "source": "real",
+        "doc": "JOHNSON_JOHNSON_2023_8K_dated-2023-08-30",
+        "overlap": "high",
+        "page": "1-10"
+      },
+      {
+        "id": "financebench_id_01490",
+        "stage": null,
+        "first_rank": 2,
+        "block_type": "paragraph",
+        "question_type": "numeric",
+        "source": "real",
+        "doc": "JOHNSON_JOHNSON_2023_8K_dated-2023-08-30",
+        "overlap": "high",
+        "page": "1-10"
+      },
+      {
+        "id": "financebench_id_01491",
+        "stage": null,
+        "first_rank": 1,
+        "block_type": "paragraph",
+        "question_type": "numeric",
+        "source": "real",
+        "doc": "JOHNSON_JOHNSON_2023_8K_dated-2023-08-30",
+        "overlap": "high",
+        "page": "1-10"
+      },
+      {
+        "id": "financebench_id_00601",
+        "stage": null,
+        "first_rank": 4,
+        "block_type": "list",
+        "question_type": "numeric",
+        "source": "real",
+        "doc": "ULTABEAUTY_2023Q4_EARNINGS",
+        "overlap": "mid",
+        "page": "1-10"
+      },
+      {
+        "id": "financebench_id_00603",
+        "stage": "rank",
+        "first_rank": 10,
+        "block_type": "paragraph",
+        "question_type": "numeric",
+        "source": "real",
+        "doc": "ULTABEAUTY_2023Q4_EARNINGS",
+        "overlap": "mid",
+        "page": "1-10"
+      },
+      {
+        "id": "financebench_id_00605",
+        "stage": "rank",
+        "first_rank": 7,
+        "block_type": "paragraph",
+        "question_type": "numeric",
+        "source": "real",
+        "doc": "ULTABEAUTY_2023Q4_EARNINGS",
+        "overlap": "low",
+        "page": "1-10"
+      },
+      {
+        "id": "financebench_id_00606",
+        "stage": null,
+        "first_rank": 5,
+        "block_type": "list",
+        "question_type": "numeric",
+        "source": "real",
+        "doc": "ULTABEAUTY_2023Q4_EARNINGS",
+        "overlap": "mid",
+        "page": "1-10"
+      }
+    ]
+  },
+  "gate": null,
+  "regret": null,
+  "notes": [
+    "Default embedder 'openai-small' unavailable (unavailable: RuntimeError: OPENAI_API_KEY is not set); default run with bge-small instead.",
+    "Gold spans anchored in docling text were projected onto pymupdf-text text: 93 exact, 23 fuzzy, 0 lost of 116. Lost spans count as pymupdf-text parse failures.",
+    "Synthetic questions generated by heuristic; selection used synthetic only, real set held out.",
+    "Heuristic generator is lexically leaky by construction; synthetic numbers favor sparse retrieval. Judge on the real set.",
+    "1 real questions have weak (automatically located) gold spans.",
+    "Generation judge skipped: no Anthropic credentials in this environment."
+  ]
+}

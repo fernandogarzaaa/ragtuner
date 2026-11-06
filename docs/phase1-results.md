@@ -1,6 +1,6 @@
 # Phase 1 results
 
-Status: runs in progress. Sections fill in as each corpus completes. Everything here
+Status: all three corpus runs complete; the FinanceBench cross-validation section is filled in when that run finishes. Everything here
 comes from runs recorded in `data/` and `runs/` of this repo or from the test suite.
 
 ## Environment
@@ -63,3 +63,49 @@ rather than reported as weak gold.
 - Caveat: the heuristic generator copies rare words from the gold span into the
   question, which favors BM25. The size of the gap over the dense default is inflated
   by that; the direction is not evidence about real users.
+
+### FinanceBench (8 filings, 30 real analyst questions)
+
+Artifacts: `runs/financebench/`. 95 synthetic questions (85 answerable) for selection;
+30 real FinanceBench questions held out, gold spans from FinanceBench's own evidence,
+located by token alignment within the cited page (29 strong, 1 weak).
+
+| recall@5 | default | tuned winner |
+|---|---|---|
+| real questions, held out (n=30) | 0.367 | 0.267 |
+| synthetic questions, selection (n=95) | 0.506 | 0.953 |
+
+Winner: docling, structure 300/600, BM25, MiniLM reranker on the top 20. Default:
+pymupdf-text, recursive 512/50, bge-small, dense.
+
+**Pre-registered hypothesis: FAIL on this corpus.** The tuned config is 10 points worse
+than the default on real questions. On other real metrics the winner has higher MRR@10
+(0.208 vs 0.163) but lower recall@10 (0.267 vs 0.467) and hit@50 (0.500 vs 0.733).
+
+Why: the heuristic generator writes questions from rare words in the gold span, so the
+selection set rewards exact-term matching, and BM25 wins it by a wide margin. Real
+analyst questions share few words with the filing text ("What is the FY2018 capital
+expenditure amount" against a line item labeled "Purchases of property, plant and
+equipment"). The tool's own failure analysis on the winner says this: 22 of its 26
+misses are real questions, concentrated in low-overlap, numeric and table questions, all
+failing at depth (never in the top 50), and its recipe is to add a dense embedder or go
+hybrid. This is the area-3 risk from the spec, observed: a biased synthetic set selects
+the wrong config, and a small real set is what catches it.
+
+`ragtuner replay` reproduced the winner's top-50 chunk ids for all 125 questions.
+
+### Slide deck (1 deck, 138 pages, image-only)
+
+Artifacts: `runs/slides/`. Only 31 synthetic questions could be generated (21
+answerable): slide text is short, so few blocks pass the generator's eligibility rule.
+No real questions exist for this deck.
+
+The deck is image-only: PyMuPDF extracts 18 characters from 138 pages; Docling's OCR
+recovers 23,257. Every gold span is therefore absent from the PyMuPDF parse (21 of 21
+projections lost), the default scores 0.000 recall@5, and its failure analysis labels all
+21 misses as parse failures with the "compare parsers" recipe. Every Docling config
+reaches 1.000 on this small set. This is the scanned-document case from area 2: the
+parser dimension decides the outcome, and the search surfaces it without a human
+looking at the PDF.
+
+`ragtuner replay` reproduced the winner's results for all 31 questions.

@@ -1,0 +1,571 @@
+[
+  {
+    "question_id": "h-9c1a46b4b4",
+    "span_ranks": [
+      null
+    ],
+    "first_rank": null,
+    "top_score": 0.4898946285247803,
+    "hits": [
+      {
+        "chunk_id": "team_2017_investor_day-3c4fd71d:recursive-512-50:0",
+        "doc_id": "team_2017_investor_day-3c4fd71d",
+        "start": 0,
+        "end": 18,
+        "score": 0.489895,
+        "rank": 1,
+        "page": 1
+      }
+    ]
+  },
+  {
+    "question_id": "h-78e46d41d9",
+    "span_ranks": [
+      null
+    ],
+    "first_rank": null,
+    "top_score": 0.5272448062896729,
+    "hits": [
+      {
+        "chunk_id": "team_2017_investor_day-3c4fd71d:recursive-512-50:0",
+        "doc_id": "team_2017_investor_day-3c4fd71d",
+        "start": 0,
+        "end": 18,
+        "score": 0.527245,
+        "rank": 1,
+        "page": 1
+      }
+    ]
+  },
+  {
+    "question_id": "h-fb9a3f3324",
+    "span_ranks": [
+      null
+    ],
+    "first_rank": null,
+    "top_score": 0.5156586170196533,
+    "hits": [
+      {
+        "chunk_id": "team_2017_investor_day-3c4fd71d:recursive-512-50:0",
+        "doc_id": "team_2017_investor_day-3c4fd71d",
+        "start": 0,
+        "end": 18,
+        "score": 0.515659,
+        "rank": 1,
+        "page": 1
+      }
+    ]
+  },
+  {
+    "question_id": "h-4b04ff4ea5",
+    "span_ranks": [
+      null
+    ],
+    "first_rank": null,
+    "top_score": 0.5802768468856812,
+    "hits": [
+      {
+        "chunk_id": "team_2017_investor_day-3c4fd71d:recursive-512-50:0",
+        "doc_id": "team_2017_investor_day-3c4fd71d",
+        "start": 0,
+        "end": 18,
+        "score": 0.580277,
+        "rank": 1,
+        "page": 1
+      }
+    ]
+  },
+  {
+    "question_id": "h-d89c266e32",
+    "span_ranks": [
+      null
+    ],
+    "first_rank": null,
+    "top_score": 0.5672720670700073,
+    "hits": [
+      {
+        "chunk_id": "team_2017_investor_day-3c4fd71d:recursive-512-50:0",
+        "doc_id": "team_2017_investor_day-3c4fd71d",
+        "start": 0,
+        "end": 18,
+        "score": 0.567272,
+        "rank": 1,
+        "page": 1
+      }
+    ]
+  },
+  {
+    "question_id": "h-7a71d934d4",
+    "span_ranks": [
+      null
+    ],
+    "first_rank": null,
+    "top_score": 0.4787372946739197,
+    "hits": [
+      {
+        "chunk_id": "team_2017_investor_day-3c4fd71d:recursive-512-50:0",
+        "doc_id": "team_2017_investor_day-3c4fd71d",
+        "start": 0,
+        "end": 18,
+        "score": 0.478737,
+        "rank": 1,
+        "page": 1
+      }
+    ]
+  },
+  {
+    "question_id": "h-356f2ce849",
+    "span_ranks": [
+      null
+    ],
+    "first_rank": null,
+    "top_score": 0.5494306087493896,
+    "hits": [
+      {
+        "chunk_id": "team_2017_investor_day-3c4fd71d:recursive-512-50:0",
+        "doc_id": "team_2017_investor_day-3c4fd71d",
+        "start": 0,
+        "end": 18,
+        "score": 0.549431,
+        "rank": 1,
+        "page": 1
+      }
+    ]
+  },
+  {
+    "question_id": "h-7f3e31d0df",
+    "span_ranks": [
+      null
+    ],
+    "first_rank": null,
+    "top_score": 0.4972895085811615,
+    "hits": [
+      {
+        "chunk_id": "team_2017_investor_day-3c4fd71d:recursive-512-50:0",
+        "doc_id": "team_2017_investor_day-3c4fd71d",
+        "start": 0,
+        "end": 18,
+        "score": 0.49729,
+        "rank": 1,
+        "page": 1
+      }
+    ]
+  },
+  {
+    "question_id": "h-891285186c",
+    "span_ranks": [
+      null
+    ],
+    "first_rank": null,
+    "top_score": 0.46953099966049194,
+    "hits": [
+      {
+        "chunk_id": "team_2017_investor_day-3c4fd71d:recursive-512-50:0",
+        "doc_id": "team_2017_investor_day-3c4fd71d",
+        "start": 0,
+        "end": 18,
+        "score": 0.469531,
+        "rank": 1,
+        "page": 1
+      }
+    ]
+  },
+  {
+    "question_id": "h-8bce3ac4fc",
+    "span_ranks": [
+      null
+    ],
+    "first_rank": null,
+    "top_score": 0.5060114860534668,
+    "hits": [
+      {
+        "chunk_id": "team_2017_investor_day-3c4fd71d:recursive-512-50:0",
+        "doc_id": "team_2017_investor_day-3c4fd71d",
+        "start": 0,
+        "end": 18,
+        "score": 0.506011,
+        "rank": 1,
+        "page": 1
+      }
+    ]
+  },
+  {
+    "question_id": "h-c60cd32b20",
+    "span_ranks": [
+      null
+    ],
+    "first_rank": null,
+    "top_score": 0.5040491819381714,
+    "hits": [
+      {
+        "chunk_id": "team_2017_investor_day-3c4fd71d:recursive-512-50:0",
+        "doc_id": "team_2017_investor_day-3c4fd71d",
+        "start": 0,
+        "end": 18,
+        "score": 0.504049,
+        "rank": 1,
+        "page": 1
+      }
+    ]
+  },
+  {
+    "question_id": "h-c893bdbdd1",
+    "span_ranks": [
+      null
+    ],
+    "first_rank": null,
+    "top_score": 0.5029587745666504,
+    "hits": [
+      {
+        "chunk_id": "team_2017_investor_day-3c4fd71d:recursive-512-50:0",
+        "doc_id": "team_2017_investor_day-3c4fd71d",
+        "start": 0,
+        "end": 18,
+        "score": 0.502959,
+        "rank": 1,
+        "page": 1
+      }
+    ]
+  },
+  {
+    "question_id": "h-77b408892b",
+    "span_ranks": [
+      null
+    ],
+    "first_rank": null,
+    "top_score": 0.5133054256439209,
+    "hits": [
+      {
+        "chunk_id": "team_2017_investor_day-3c4fd71d:recursive-512-50:0",
+        "doc_id": "team_2017_investor_day-3c4fd71d",
+        "start": 0,
+        "end": 18,
+        "score": 0.513305,
+        "rank": 1,
+        "page": 1
+      }
+    ]
+  },
+  {
+    "question_id": "h-bd1bf15a6d",
+    "span_ranks": [
+      null
+    ],
+    "first_rank": null,
+    "top_score": 0.48738664388656616,
+    "hits": [
+      {
+        "chunk_id": "team_2017_investor_day-3c4fd71d:recursive-512-50:0",
+        "doc_id": "team_2017_investor_day-3c4fd71d",
+        "start": 0,
+        "end": 18,
+        "score": 0.487387,
+        "rank": 1,
+        "page": 1
+      }
+    ]
+  },
+  {
+    "question_id": "h-ccaaba49e7",
+    "span_ranks": [
+      null
+    ],
+    "first_rank": null,
+    "top_score": 0.5270805954933167,
+    "hits": [
+      {
+        "chunk_id": "team_2017_investor_day-3c4fd71d:recursive-512-50:0",
+        "doc_id": "team_2017_investor_day-3c4fd71d",
+        "start": 0,
+        "end": 18,
+        "score": 0.527081,
+        "rank": 1,
+        "page": 1
+      }
+    ]
+  },
+  {
+    "question_id": "h-eead5d1abc",
+    "span_ranks": [
+      null
+    ],
+    "first_rank": null,
+    "top_score": 0.49404335021972656,
+    "hits": [
+      {
+        "chunk_id": "team_2017_investor_day-3c4fd71d:recursive-512-50:0",
+        "doc_id": "team_2017_investor_day-3c4fd71d",
+        "start": 0,
+        "end": 18,
+        "score": 0.494043,
+        "rank": 1,
+        "page": 1
+      }
+    ]
+  },
+  {
+    "question_id": "h-ab3705caff",
+    "span_ranks": [
+      null
+    ],
+    "first_rank": null,
+    "top_score": 0.5146117210388184,
+    "hits": [
+      {
+        "chunk_id": "team_2017_investor_day-3c4fd71d:recursive-512-50:0",
+        "doc_id": "team_2017_investor_day-3c4fd71d",
+        "start": 0,
+        "end": 18,
+        "score": 0.514612,
+        "rank": 1,
+        "page": 1
+      }
+    ]
+  },
+  {
+    "question_id": "h-56889a4f84",
+    "span_ranks": [
+      null
+    ],
+    "first_rank": null,
+    "top_score": 0.4939481317996979,
+    "hits": [
+      {
+        "chunk_id": "team_2017_investor_day-3c4fd71d:recursive-512-50:0",
+        "doc_id": "team_2017_investor_day-3c4fd71d",
+        "start": 0,
+        "end": 18,
+        "score": 0.493948,
+        "rank": 1,
+        "page": 1
+      }
+    ]
+  },
+  {
+    "question_id": "h-be08d03dcd",
+    "span_ranks": [
+      null
+    ],
+    "first_rank": null,
+    "top_score": 0.505725622177124,
+    "hits": [
+      {
+        "chunk_id": "team_2017_investor_day-3c4fd71d:recursive-512-50:0",
+        "doc_id": "team_2017_investor_day-3c4fd71d",
+        "start": 0,
+        "end": 18,
+        "score": 0.505726,
+        "rank": 1,
+        "page": 1
+      }
+    ]
+  },
+  {
+    "question_id": "h-774b394128",
+    "span_ranks": [
+      null
+    ],
+    "first_rank": null,
+    "top_score": 0.5512652397155762,
+    "hits": [
+      {
+        "chunk_id": "team_2017_investor_day-3c4fd71d:recursive-512-50:0",
+        "doc_id": "team_2017_investor_day-3c4fd71d",
+        "start": 0,
+        "end": 18,
+        "score": 0.551265,
+        "rank": 1,
+        "page": 1
+      }
+    ]
+  },
+  {
+    "question_id": "h-4499c854f4",
+    "span_ranks": [
+      null
+    ],
+    "first_rank": null,
+    "top_score": 0.3998270630836487,
+    "hits": [
+      {
+        "chunk_id": "team_2017_investor_day-3c4fd71d:recursive-512-50:0",
+        "doc_id": "team_2017_investor_day-3c4fd71d",
+        "start": 0,
+        "end": 18,
+        "score": 0.399827,
+        "rank": 1,
+        "page": 1
+      }
+    ]
+  },
+  {
+    "question_id": "h-un-e17e2833d6",
+    "span_ranks": [],
+    "first_rank": null,
+    "top_score": 0.4467913806438446,
+    "hits": [
+      {
+        "chunk_id": "team_2017_investor_day-3c4fd71d:recursive-512-50:0",
+        "doc_id": "team_2017_investor_day-3c4fd71d",
+        "start": 0,
+        "end": 18,
+        "score": 0.446791,
+        "rank": 1,
+        "page": 1
+      }
+    ]
+  },
+  {
+    "question_id": "h-un-290241f142",
+    "span_ranks": [],
+    "first_rank": null,
+    "top_score": 0.4510457515716553,
+    "hits": [
+      {
+        "chunk_id": "team_2017_investor_day-3c4fd71d:recursive-512-50:0",
+        "doc_id": "team_2017_investor_day-3c4fd71d",
+        "start": 0,
+        "end": 18,
+        "score": 0.451046,
+        "rank": 1,
+        "page": 1
+      }
+    ]
+  },
+  {
+    "question_id": "h-un-9795b05587",
+    "span_ranks": [],
+    "first_rank": null,
+    "top_score": 0.404740571975708,
+    "hits": [
+      {
+        "chunk_id": "team_2017_investor_day-3c4fd71d:recursive-512-50:0",
+        "doc_id": "team_2017_investor_day-3c4fd71d",
+        "start": 0,
+        "end": 18,
+        "score": 0.404741,
+        "rank": 1,
+        "page": 1
+      }
+    ]
+  },
+  {
+    "question_id": "h-un-c60134498f",
+    "span_ranks": [],
+    "first_rank": null,
+    "top_score": 0.44279682636260986,
+    "hits": [
+      {
+        "chunk_id": "team_2017_investor_day-3c4fd71d:recursive-512-50:0",
+        "doc_id": "team_2017_investor_day-3c4fd71d",
+        "start": 0,
+        "end": 18,
+        "score": 0.442797,
+        "rank": 1,
+        "page": 1
+      }
+    ]
+  },
+  {
+    "question_id": "h-un-3833e39613",
+    "span_ranks": [],
+    "first_rank": null,
+    "top_score": 0.399192214012146,
+    "hits": [
+      {
+        "chunk_id": "team_2017_investor_day-3c4fd71d:recursive-512-50:0",
+        "doc_id": "team_2017_investor_day-3c4fd71d",
+        "start": 0,
+        "end": 18,
+        "score": 0.399192,
+        "rank": 1,
+        "page": 1
+      }
+    ]
+  },
+  {
+    "question_id": "h-un-b488d475a1",
+    "span_ranks": [],
+    "first_rank": null,
+    "top_score": 0.43779051303863525,
+    "hits": [
+      {
+        "chunk_id": "team_2017_investor_day-3c4fd71d:recursive-512-50:0",
+        "doc_id": "team_2017_investor_day-3c4fd71d",
+        "start": 0,
+        "end": 18,
+        "score": 0.437791,
+        "rank": 1,
+        "page": 1
+      }
+    ]
+  },
+  {
+    "question_id": "h-un-f180133083",
+    "span_ranks": [],
+    "first_rank": null,
+    "top_score": 0.3379266858100891,
+    "hits": [
+      {
+        "chunk_id": "team_2017_investor_day-3c4fd71d:recursive-512-50:0",
+        "doc_id": "team_2017_investor_day-3c4fd71d",
+        "start": 0,
+        "end": 18,
+        "score": 0.337927,
+        "rank": 1,
+        "page": 1
+      }
+    ]
+  },
+  {
+    "question_id": "h-un-0945557e18",
+    "span_ranks": [],
+    "first_rank": null,
+    "top_score": 0.3733596205711365,
+    "hits": [
+      {
+        "chunk_id": "team_2017_investor_day-3c4fd71d:recursive-512-50:0",
+        "doc_id": "team_2017_investor_day-3c4fd71d",
+        "start": 0,
+        "end": 18,
+        "score": 0.37336,
+        "rank": 1,
+        "page": 1
+      }
+    ]
+  },
+  {
+    "question_id": "h-un-f595dc833e",
+    "span_ranks": [],
+    "first_rank": null,
+    "top_score": 0.4022137224674225,
+    "hits": [
+      {
+        "chunk_id": "team_2017_investor_day-3c4fd71d:recursive-512-50:0",
+        "doc_id": "team_2017_investor_day-3c4fd71d",
+        "start": 0,
+        "end": 18,
+        "score": 0.402214,
+        "rank": 1,
+        "page": 1
+      }
+    ]
+  },
+  {
+    "question_id": "h-un-a7b0b8869d",
+    "span_ranks": [],
+    "first_rank": null,
+    "top_score": 0.390982061624527,
+    "hits": [
+      {
+        "chunk_id": "team_2017_investor_day-3c4fd71d:recursive-512-50:0",
+        "doc_id": "team_2017_investor_day-3c4fd71d",
+        "start": 0,
+        "end": 18,
+        "score": 0.390982,
+        "rank": 1,
+        "page": 1
+      }
+    ]
+  }
+]

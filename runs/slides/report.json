@@ -1,0 +1,990 @@
+{
+  "verdict": {
+    "metric": "recall@5",
+    "default_real": null,
+    "winner_real": null,
+    "delta_real": null,
+    "default_synth": 0.0,
+    "winner_synth": 1.0,
+    "delta_synth": 1.0,
+    "passed": null,
+    "n_real": 0,
+    "n_synth": 31
+  },
+  "search": {
+    "corpus": "slides",
+    "mode": "staged",
+    "space": {
+      "parsers": [
+        "pymupdf-text",
+        "docling"
+      ],
+      "chunkers": [
+        "fixed:{'size': 120, 'overlap': 24}",
+        "recursive:{'size': 256, 'overlap': 30}",
+        "recursive:{'size': 512, 'overlap': 50}",
+        "structure:{'target_words': 300, 'max_words': 600}"
+      ],
+      "embedders": [
+        null,
+        "bge-small"
+      ],
+      "retrievals": [
+        "sparse",
+        "better-rag",
+        "dense",
+        "hybrid"
+      ],
+      "rerankers": [
+        null,
+        "minilm"
+      ],
+      "top_k": 5,
+      "stage1_configs": 16,
+      "grid_configs": 64
+    },
+    "evaluations": 47,
+    "seconds": 31.0,
+    "winner": {
+      "config": {
+        "parser": "docling",
+        "chunker": "fixed",
+        "chunk_params": {
+          "size": 120,
+          "overlap": 24
+        },
+        "embedder": null,
+        "retrieval": "sparse",
+        "reranker": null,
+        "top_k": 5,
+        "candidates": 50,
+        "rerank_depth": 20,
+        "label": null
+      },
+      "key": "docling|fixed-24-120|none|sparse|norerank|k5|b544200e",
+      "metrics": {
+        "n_answerable": 21.0,
+        "recall@5": 1.0,
+        "hit@5": 1.0,
+        "mrr@5": 0.8690476190476191,
+        "ndcg@5": 0.9025902653504393,
+        "recall@10": 1.0,
+        "hit@10": 1.0,
+        "mrr@10": 0.8690476190476191,
+        "ndcg@10": 0.9025902653504393,
+        "hit@50": 1.0,
+        "n_unanswerable": 10.0,
+        "refusal_rate@p10": 1.0
+      },
+      "real_metrics": null,
+      "n_questions": 31,
+      "seconds": 0.01,
+      "stage": "final",
+      "fraction": 1.0,
+      "stats": {
+        "docs": 0,
+        "chunks": 37,
+        "parse_seconds": 0.0,
+        "parse_cache_hits": 0,
+        "chunk_seconds": 0.0,
+        "embed_seconds": 0.0,
+        "embedded_texts": 0,
+        "embed_cache_hits": 0,
+        "index_seconds": 0.003651142120361328
+      }
+    },
+    "default": {
+      "config": {
+        "parser": "pymupdf-text",
+        "chunker": "recursive",
+        "chunk_params": {
+          "size": 512,
+          "overlap": 50
+        },
+        "embedder": "bge-small",
+        "retrieval": "dense",
+        "reranker": null,
+        "top_k": 5,
+        "candidates": 50,
+        "rerank_depth": 20,
+        "label": "frozen-default"
+      },
+      "key": "pymupdf-text|recursive-50-512|bge-small|dense|norerank|k5|4813b9e7",
+      "metrics": {
+        "n_answerable": 21.0,
+        "recall@5": 0.0,
+        "hit@5": 0.0,
+        "mrr@5": 0.0,
+        "ndcg@5": 0.0,
+        "recall@10": 0.0,
+        "hit@10": 0.0,
+        "mrr@10": 0.0,
+        "ndcg@10": 0.0,
+        "hit@50": 0.0,
+        "n_unanswerable": 10.0,
+        "refusal_rate@p10": 1.0
+      },
+      "real_metrics": null,
+      "n_questions": 31,
+      "seconds": 0.19,
+      "stage": "default",
+      "fraction": 1.0,
+      "stats": {
+        "docs": 0,
+        "chunks": 1,
+        "parse_seconds": 0.0,
+        "parse_cache_hits": 0,
+        "chunk_seconds": 0.0,
+        "embed_seconds": 0.0001609325408935547,
+        "embedded_texts": 0,
+        "embed_cache_hits": 1,
+        "index_seconds": 0.0002963542938232422
+      }
+    },
+    "stage1": [
+      {
+        "config": {
+          "parser": "docling",
+          "chunker": "fixed",
+          "chunk_params": {
+            "size": 120,
+            "overlap": 24
+          },
+          "embedder": null,
+          "retrieval": "sparse",
+          "reranker": null,
+          "top_k": 5,
+          "candidates": 50,
+          "rerank_depth": 20,
+          "label": null
+        },
+        "key": "docling|fixed-24-120|none|sparse|norerank|k5|b544200e",
+        "metrics": {
+          "n_answerable": 21.0,
+          "recall@5": 1.0,
+          "hit@5": 1.0,
+          "mrr@5": 0.8690476190476191,
+          "ndcg@5": 0.9025902653504393,
+          "recall@10": 1.0,
+          "hit@10": 1.0,
+          "mrr@10": 0.8690476190476191,
+          "ndcg@10": 0.9025902653504393,
+          "hit@50": 1.0,
+          "n_unanswerable": 10.0,
+          "refusal_rate@p10": 1.0
+        },
+        "real_metrics": null,
+        "n_questions": 31,
+        "seconds": 0.01,
+        "stage": "s1/r3",
+        "fraction": 1.0,
+        "stats": {
+          "docs": 0,
+          "chunks": 37,
+          "parse_seconds": 0.0,
+          "parse_cache_hits": 0,
+          "chunk_seconds": 0.0,
+          "embed_seconds": 0.0,
+          "embedded_texts": 0,
+          "embed_cache_hits": 0,
+          "index_seconds": 0.0036916732788085938
+        }
+      },
+      {
+        "config": {
+          "parser": "docling",
+          "chunker": "recursive",
+          "chunk_params": {
+            "size": 256,
+            "overlap": 30
+          },
+          "embedder": null,
+          "retrieval": "sparse",
+          "reranker": null,
+          "top_k": 5,
+          "candidates": 50,
+          "rerank_depth": 20,
+          "label": null
+        },
+        "key": "docling|recursive-30-256|none|sparse|norerank|k5|231b72ca",
+        "metrics": {
+          "n_answerable": 21.0,
+          "recall@5": 1.0,
+          "hit@5": 1.0,
+          "mrr@5": 0.9523809523809523,
+          "ndcg@5": 0.9648504527210913,
+          "recall@10": 1.0,
+          "hit@10": 1.0,
+          "mrr@10": 0.9523809523809523,
+          "ndcg@10": 0.9648504527210913,
+          "hit@50": 1.0,
+          "n_unanswerable": 10.0,
+          "refusal_rate@p10": 1.0
+        },
+        "real_metrics": null,
+        "n_questions": 31,
+        "seconds": 0.0,
+        "stage": "s1/r3",
+        "fraction": 1.0,
+        "stats": {
+          "docs": 0,
+          "chunks": 16,
+          "parse_seconds": 0.0,
+          "parse_cache_hits": 0,
+          "chunk_seconds": 0.0,
+          "embed_seconds": 0.0,
+          "embedded_texts": 0,
+          "embed_cache_hits": 0,
+          "index_seconds": 0.002895832061767578
+        }
+      },
+      {
+        "config": {
+          "parser": "docling",
+          "chunker": "recursive",
+          "chunk_params": {
+            "size": 512,
+            "overlap": 50
+          },
+          "embedder": null,
+          "retrieval": "sparse",
+          "reranker": null,
+          "top_k": 5,
+          "candidates": 50,
+          "rerank_depth": 20,
+          "label": null
+        },
+        "key": "docling|recursive-50-512|none|sparse|norerank|k5|a69d9a8a",
+        "metrics": {
+          "n_answerable": 21.0,
+          "recall@5": 1.0,
+          "hit@5": 1.0,
+          "mrr@5": 0.8809523809523809,
+          "ndcg@5": 0.9121261318027281,
+          "recall@10": 1.0,
+          "hit@10": 1.0,
+          "mrr@10": 0.8809523809523809,
+          "ndcg@10": 0.9121261318027281,
+          "hit@50": 1.0,
+          "n_unanswerable": 10.0,
+          "refusal_rate@p10": 1.0
+        },
+        "real_metrics": null,
+        "n_questions": 31,
+        "seconds": 0.0,
+        "stage": "s1/r3",
+        "fraction": 1.0,
+        "stats": {
+          "docs": 0,
+          "chunks": 8,
+          "parse_seconds": 0.0,
+          "parse_cache_hits": 0,
+          "chunk_seconds": 0.0,
+          "embed_seconds": 0.0,
+          "embedded_texts": 0,
+          "embed_cache_hits": 0,
+          "index_seconds": 0.002880096435546875
+        }
+      },
+      {
+        "config": {
+          "parser": "docling",
+          "chunker": "structure",
+          "chunk_params": {
+            "target_words": 300,
+            "max_words": 600
+          },
+          "embedder": null,
+          "retrieval": "sparse",
+          "reranker": null,
+          "top_k": 5,
+          "candidates": 50,
+          "rerank_depth": 20,
+          "label": null
+        },
+        "key": "docling|structure-600-300|none|sparse|norerank|k5|58027d4d",
+        "metrics": {
+          "n_answerable": 21.0,
+          "recall@5": 1.0,
+          "hit@5": 1.0,
+          "mrr@5": 0.9523809523809523,
+          "ndcg@5": 0.9648504527210913,
+          "recall@10": 1.0,
+          "hit@10": 1.0,
+          "mrr@10": 0.9523809523809523,
+          "ndcg@10": 0.9648504527210913,
+          "hit@50": 1.0,
+          "n_unanswerable": 10.0,
+          "refusal_rate@p10": 1.0
+        },
+        "real_metrics": null,
+        "n_questions": 31,
+        "seconds": 0.0,
+        "stage": "s1/r3",
+        "fraction": 1.0,
+        "stats": {
+          "docs": 0,
+          "chunks": 132,
+          "parse_seconds": 0.0,
+          "parse_cache_hits": 0,
+          "chunk_seconds": 0.0,
+          "embed_seconds": 0.0,
+          "embedded_texts": 0,
+          "embed_cache_hits": 0,
+          "index_seconds": 0.002867460250854492
+        }
+      }
+    ],
+    "stage2": [
+      {
+        "config": {
+          "parser": "docling",
+          "chunker": "fixed",
+          "chunk_params": {
+            "size": 120,
+            "overlap": 24
+          },
+          "embedder": null,
+          "retrieval": "sparse",
+          "reranker": null,
+          "top_k": 5,
+          "candidates": 50,
+          "rerank_depth": 20,
+          "label": null
+        },
+        "key": "docling|fixed-24-120|none|sparse|norerank|k5|b544200e",
+        "metrics": {
+          "n_answerable": 21.0,
+          "recall@5": 1.0,
+          "hit@5": 1.0,
+          "mrr@5": 0.8690476190476191,
+          "ndcg@5": 0.9025902653504393,
+          "recall@10": 1.0,
+          "hit@10": 1.0,
+          "mrr@10": 0.8690476190476191,
+          "ndcg@10": 0.9025902653504393,
+          "hit@50": 1.0,
+          "n_unanswerable": 10.0,
+          "refusal_rate@p10": 1.0
+        },
+        "real_metrics": null,
+        "n_questions": 31,
+        "seconds": 0.01,
+        "stage": "s2/final",
+        "fraction": 1.0,
+        "stats": {
+          "docs": 0,
+          "chunks": 37,
+          "parse_seconds": 0.0,
+          "parse_cache_hits": 0,
+          "chunk_seconds": 0.0,
+          "embed_seconds": 0.0,
+          "embedded_texts": 0,
+          "embed_cache_hits": 0,
+          "index_seconds": 0.0035636425018310547
+        }
+      },
+      {
+        "config": {
+          "parser": "docling",
+          "chunker": "fixed",
+          "chunk_params": {
+            "size": 120,
+            "overlap": 24
+          },
+          "embedder": null,
+          "retrieval": "sparse",
+          "reranker": "minilm",
+          "top_k": 5,
+          "candidates": 50,
+          "rerank_depth": 20,
+          "label": null
+        },
+        "key": "docling|fixed-24-120|none|sparse|minilm@20|k5|a4aefd8c",
+        "metrics": {
+          "n_answerable": 21.0,
+          "recall@5": 1.0,
+          "hit@5": 1.0,
+          "mrr@5": 0.8650793650793651,
+          "ndcg@5": 0.8996566314625892,
+          "recall@10": 1.0,
+          "hit@10": 1.0,
+          "mrr@10": 0.8650793650793651,
+          "ndcg@10": 0.8996566314625892,
+          "hit@50": 1.0,
+          "n_unanswerable": 10.0,
+          "refusal_rate@p10": 1.0
+        },
+        "real_metrics": null,
+        "n_questions": 31,
+        "seconds": 4.41,
+        "stage": "s2/final",
+        "fraction": 1.0,
+        "stats": {
+          "docs": 0,
+          "chunks": 37,
+          "parse_seconds": 0.0,
+          "parse_cache_hits": 0,
+          "chunk_seconds": 0.0,
+          "embed_seconds": 0.0,
+          "embedded_texts": 0,
+          "embed_cache_hits": 0,
+          "index_seconds": 0.0034918785095214844
+        }
+      },
+      {
+        "config": {
+          "parser": "docling",
+          "chunker": "fixed",
+          "chunk_params": {
+            "size": 120,
+            "overlap": 24
+          },
+          "embedder": null,
+          "retrieval": "better-rag",
+          "reranker": null,
+          "top_k": 5,
+          "candidates": 50,
+          "rerank_depth": 20,
+          "label": null
+        },
+        "key": "docling|fixed-24-120|none|better-rag|norerank|k5|18660e63",
+        "metrics": {
+          "n_answerable": 21.0,
+          "recall@5": 1.0,
+          "hit@5": 1.0,
+          "mrr@5": 0.8849206349206349,
+          "ndcg@5": 0.9139302888198243,
+          "recall@10": 1.0,
+          "hit@10": 1.0,
+          "mrr@10": 0.8849206349206349,
+          "ndcg@10": 0.9139302888198243,
+          "hit@50": 1.0,
+          "n_unanswerable": 10.0,
+          "refusal_rate@p10": 0.8
+        },
+        "real_metrics": null,
+        "n_questions": 31,
+        "seconds": 0.02,
+        "stage": "s2/final",
+        "fraction": 1.0,
+        "stats": {
+          "docs": 0,
+          "chunks": 37,
+          "parse_seconds": 0.0,
+          "parse_cache_hits": 0,
+          "chunk_seconds": 0.0,
+          "embed_seconds": 0.0,
+          "embedded_texts": 0,
+          "embed_cache_hits": 0,
+          "index_seconds": 0.003459453582763672
+        }
+      }
+    ],
+    "grid": null
+  },
+  "evalset": {
+    "n": 31,
+    "by_source": {
+      "synthetic-heuristic": 31
+    },
+    "by_type": {
+      "numeric": 5,
+      "factual": 16,
+      "unanswerable": 10
+    },
+    "by_block_type": {
+      "table": 7,
+      "paragraph": 14,
+      "none": 10
+    },
+    "unanswerable": 10,
+    "weak_gold": 0
+  },
+  "failures": {
+    "k": 5,
+    "n_questions": 21,
+    "n_misses": 0,
+    "stage_counts": {},
+    "diagnoses": [],
+    "per_question": [
+      {
+        "id": "h-9c1a46b4b4",
+        "stage": null,
+        "first_rank": 1,
+        "block_type": "table",
+        "question_type": "numeric",
+        "source": "synthetic-heuristic",
+        "doc": "team_2017_investor_day-3c4fd71d",
+        "page": "51+"
+      },
+      {
+        "id": "h-78e46d41d9",
+        "stage": null,
+        "first_rank": 1,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "team_2017_investor_day-3c4fd71d",
+        "page": "11-50"
+      },
+      {
+        "id": "h-fb9a3f3324",
+        "stage": null,
+        "first_rank": 2,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "team_2017_investor_day-3c4fd71d",
+        "page": "1-10"
+      },
+      {
+        "id": "h-4b04ff4ea5",
+        "stage": null,
+        "first_rank": 2,
+        "block_type": "table",
+        "question_type": "numeric",
+        "source": "synthetic-heuristic",
+        "doc": "team_2017_investor_day-3c4fd71d",
+        "page": "51+"
+      },
+      {
+        "id": "h-d89c266e32",
+        "stage": null,
+        "first_rank": 1,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "team_2017_investor_day-3c4fd71d",
+        "page": "51+"
+      },
+      {
+        "id": "h-7a71d934d4",
+        "stage": null,
+        "first_rank": 1,
+        "block_type": "table",
+        "question_type": "numeric",
+        "source": "synthetic-heuristic",
+        "doc": "team_2017_investor_day-3c4fd71d",
+        "page": "51+"
+      },
+      {
+        "id": "h-356f2ce849",
+        "stage": null,
+        "first_rank": 4,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "team_2017_investor_day-3c4fd71d",
+        "page": "1-10"
+      },
+      {
+        "id": "h-7f3e31d0df",
+        "stage": null,
+        "first_rank": 1,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "team_2017_investor_day-3c4fd71d",
+        "page": "51+"
+      },
+      {
+        "id": "h-891285186c",
+        "stage": null,
+        "first_rank": 1,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "team_2017_investor_day-3c4fd71d",
+        "page": "51+"
+      },
+      {
+        "id": "h-8bce3ac4fc",
+        "stage": null,
+        "first_rank": 1,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "team_2017_investor_day-3c4fd71d",
+        "page": "51+"
+      },
+      {
+        "id": "h-c60cd32b20",
+        "stage": null,
+        "first_rank": 2,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "team_2017_investor_day-3c4fd71d",
+        "page": "1-10"
+      },
+      {
+        "id": "h-c893bdbdd1",
+        "stage": null,
+        "first_rank": 1,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "team_2017_investor_day-3c4fd71d",
+        "page": "51+"
+      },
+      {
+        "id": "h-77b408892b",
+        "stage": null,
+        "first_rank": 1,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "team_2017_investor_day-3c4fd71d",
+        "page": "1-10"
+      },
+      {
+        "id": "h-bd1bf15a6d",
+        "stage": null,
+        "first_rank": 1,
+        "block_type": "table",
+        "question_type": "numeric",
+        "source": "synthetic-heuristic",
+        "doc": "team_2017_investor_day-3c4fd71d",
+        "page": "51+"
+      },
+      {
+        "id": "h-ccaaba49e7",
+        "stage": null,
+        "first_rank": 1,
+        "block_type": "table",
+        "question_type": "numeric",
+        "source": "synthetic-heuristic",
+        "doc": "team_2017_investor_day-3c4fd71d",
+        "page": "51+"
+      },
+      {
+        "id": "h-eead5d1abc",
+        "stage": null,
+        "first_rank": 1,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "team_2017_investor_day-3c4fd71d",
+        "page": "51+"
+      },
+      {
+        "id": "h-ab3705caff",
+        "stage": null,
+        "first_rank": 1,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "team_2017_investor_day-3c4fd71d",
+        "page": "1-10"
+      },
+      {
+        "id": "h-56889a4f84",
+        "stage": null,
+        "first_rank": 2,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "team_2017_investor_day-3c4fd71d",
+        "page": "51+"
+      },
+      {
+        "id": "h-be08d03dcd",
+        "stage": null,
+        "first_rank": 1,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "team_2017_investor_day-3c4fd71d",
+        "page": "11-50"
+      },
+      {
+        "id": "h-774b394128",
+        "stage": null,
+        "first_rank": 1,
+        "block_type": "table",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "team_2017_investor_day-3c4fd71d",
+        "page": "51+"
+      },
+      {
+        "id": "h-4499c854f4",
+        "stage": null,
+        "first_rank": 1,
+        "block_type": "table",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "team_2017_investor_day-3c4fd71d",
+        "page": "11-50"
+      }
+    ]
+  },
+  "default_failures": {
+    "k": 5,
+    "n_questions": 21,
+    "n_misses": 21,
+    "stage_counts": {
+      "parse": 21
+    },
+    "diagnoses": [
+      {
+        "stage": "parse",
+        "attribute": "stage",
+        "value": "parse",
+        "misses": 21,
+        "questions_with_value": 21,
+        "total_misses": 21,
+        "miss_share": 1.0,
+        "base_share": 1.0,
+        "lift": 1.0,
+        "fix": "Gold text is missing from every chunk: the parser drops or garbles it. Compare parsers on these pages with `ragtuner gate`.",
+        "question_ids": [
+          "h-356f2ce849",
+          "h-4499c854f4",
+          "h-4b04ff4ea5",
+          "h-56889a4f84",
+          "h-774b394128",
+          "h-77b408892b",
+          "h-78e46d41d9",
+          "h-7a71d934d4",
+          "h-7f3e31d0df",
+          "h-891285186c",
+          "h-8bce3ac4fc",
+          "h-9c1a46b4b4",
+          "h-ab3705caff",
+          "h-bd1bf15a6d",
+          "h-be08d03dcd",
+          "h-c60cd32b20",
+          "h-c893bdbdd1",
+          "h-ccaaba49e7",
+          "h-d89c266e32",
+          "h-eead5d1abc",
+          "h-fb9a3f3324"
+        ]
+      }
+    ],
+    "per_question": [
+      {
+        "id": "h-9c1a46b4b4",
+        "stage": "parse",
+        "first_rank": null,
+        "block_type": "table",
+        "question_type": "numeric",
+        "source": "synthetic-heuristic",
+        "doc": "team_2017_investor_day-3c4fd71d",
+        "page": "51+"
+      },
+      {
+        "id": "h-78e46d41d9",
+        "stage": "parse",
+        "first_rank": null,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "team_2017_investor_day-3c4fd71d",
+        "page": "11-50"
+      },
+      {
+        "id": "h-fb9a3f3324",
+        "stage": "parse",
+        "first_rank": null,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "team_2017_investor_day-3c4fd71d",
+        "page": "1-10"
+      },
+      {
+        "id": "h-4b04ff4ea5",
+        "stage": "parse",
+        "first_rank": null,
+        "block_type": "table",
+        "question_type": "numeric",
+        "source": "synthetic-heuristic",
+        "doc": "team_2017_investor_day-3c4fd71d",
+        "page": "51+"
+      },
+      {
+        "id": "h-d89c266e32",
+        "stage": "parse",
+        "first_rank": null,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "team_2017_investor_day-3c4fd71d",
+        "page": "51+"
+      },
+      {
+        "id": "h-7a71d934d4",
+        "stage": "parse",
+        "first_rank": null,
+        "block_type": "table",
+        "question_type": "numeric",
+        "source": "synthetic-heuristic",
+        "doc": "team_2017_investor_day-3c4fd71d",
+        "page": "51+"
+      },
+      {
+        "id": "h-356f2ce849",
+        "stage": "parse",
+        "first_rank": null,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "team_2017_investor_day-3c4fd71d",
+        "page": "1-10"
+      },
+      {
+        "id": "h-7f3e31d0df",
+        "stage": "parse",
+        "first_rank": null,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "team_2017_investor_day-3c4fd71d",
+        "page": "51+"
+      },
+      {
+        "id": "h-891285186c",
+        "stage": "parse",
+        "first_rank": null,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "team_2017_investor_day-3c4fd71d",
+        "page": "51+"
+      },
+      {
+        "id": "h-8bce3ac4fc",
+        "stage": "parse",
+        "first_rank": null,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "team_2017_investor_day-3c4fd71d",
+        "page": "51+"
+      },
+      {
+        "id": "h-c60cd32b20",
+        "stage": "parse",
+        "first_rank": null,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "team_2017_investor_day-3c4fd71d",
+        "page": "1-10"
+      },
+      {
+        "id": "h-c893bdbdd1",
+        "stage": "parse",
+        "first_rank": null,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "team_2017_investor_day-3c4fd71d",
+        "page": "51+"
+      },
+      {
+        "id": "h-77b408892b",
+        "stage": "parse",
+        "first_rank": null,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "team_2017_investor_day-3c4fd71d",
+        "page": "1-10"
+      },
+      {
+        "id": "h-bd1bf15a6d",
+        "stage": "parse",
+        "first_rank": null,
+        "block_type": "table",
+        "question_type": "numeric",
+        "source": "synthetic-heuristic",
+        "doc": "team_2017_investor_day-3c4fd71d",
+        "page": "51+"
+      },
+      {
+        "id": "h-ccaaba49e7",
+        "stage": "parse",
+        "first_rank": null,
+        "block_type": "table",
+        "question_type": "numeric",
+        "source": "synthetic-heuristic",
+        "doc": "team_2017_investor_day-3c4fd71d",
+        "page": "51+"
+      },
+      {
+        "id": "h-eead5d1abc",
+        "stage": "parse",
+        "first_rank": null,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "team_2017_investor_day-3c4fd71d",
+        "page": "51+"
+      },
+      {
+        "id": "h-ab3705caff",
+        "stage": "parse",
+        "first_rank": null,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "team_2017_investor_day-3c4fd71d",
+        "page": "1-10"
+      },
+      {
+        "id": "h-56889a4f84",
+        "stage": "parse",
+        "first_rank": null,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "team_2017_investor_day-3c4fd71d",
+        "page": "51+"
+      },
+      {
+        "id": "h-be08d03dcd",
+        "stage": "parse",
+        "first_rank": null,
+        "block_type": "paragraph",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "team_2017_investor_day-3c4fd71d",
+        "page": "11-50"
+      },
+      {
+        "id": "h-774b394128",
+        "stage": "parse",
+        "first_rank": null,
+        "block_type": "table",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "team_2017_investor_day-3c4fd71d",
+        "page": "51+"
+      },
+      {
+        "id": "h-4499c854f4",
+        "stage": "parse",
+        "first_rank": null,
+        "block_type": "table",
+        "question_type": "factual",
+        "source": "synthetic-heuristic",
+        "doc": "team_2017_investor_day-3c4fd71d",
+        "page": "11-50"
+      }
+    ]
+  },
+  "gate": null,
+  "regret": null,
+  "notes": [
+    "No real queries exist for the slide deck; synthetic only.",
+    "Default embedder 'openai-small' unavailable (unavailable: RuntimeError: OPENAI_API_KEY is not set); default run with bge-small instead.",
+    "Gold spans anchored in docling text were projected onto pymupdf-text text: 0 exact, 0 fuzzy, 21 lost of 21. Lost spans count as pymupdf-text parse failures.",
+    "Synthetic questions generated by heuristic; selection used synthetic only, real set held out.",
+    "Heuristic generator is lexically leaky by construction; synthetic numbers favor sparse retrieval. Judge on the real set.",
+    "Generation judge skipped: no Anthropic credentials in this environment."
+  ]
+}

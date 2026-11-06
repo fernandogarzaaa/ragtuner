@@ -1,0 +1,496 @@
+{
+  "corpus": "financebench",
+  "mode": "staged",
+  "space": {
+    "parsers": [
+      "pymupdf-text",
+      "docling"
+    ],
+    "chunkers": [
+      "fixed:{'size': 120, 'overlap': 24}",
+      "recursive:{'size': 256, 'overlap': 30}",
+      "recursive:{'size': 512, 'overlap': 50}",
+      "structure:{'target_words': 300, 'max_words': 600}"
+    ],
+    "embedders": [
+      null,
+      "bge-small"
+    ],
+    "retrievals": [
+      "sparse",
+      "better-rag",
+      "dense",
+      "hybrid"
+    ],
+    "rerankers": [
+      null,
+      "minilm"
+    ],
+    "top_k": 5,
+    "stage1_configs": 16,
+    "grid_configs": 64
+  },
+  "evaluations": 47,
+  "seconds": 1203.3,
+  "winner": {
+    "config": {
+      "parser": "docling",
+      "chunker": "structure",
+      "chunk_params": {
+        "target_words": 300,
+        "max_words": 600
+      },
+      "embedder": null,
+      "retrieval": "sparse",
+      "reranker": "minilm",
+      "top_k": 5,
+      "candidates": 50,
+      "rerank_depth": 20,
+      "label": null
+    },
+    "key": "docling|structure-600-300|none|sparse|minilm@20|k5|ca889504",
+    "metrics": {
+      "n_answerable": 85.0,
+      "recall@5": 0.9529411764705882,
+      "hit@5": 0.9529411764705882,
+      "mrr@5": 0.7768627450980392,
+      "ndcg@5": 0.821683317417937,
+      "recall@10": 1.0,
+      "hit@10": 1.0,
+      "mrr@10": 0.7830018674136321,
+      "ndcg@10": 0.8367793355251885,
+      "hit@50": 1.0,
+      "n_unanswerable": 10.0,
+      "refusal_rate@p10": 1.0
+    },
+    "real_metrics": {
+      "n_answerable": 30.0,
+      "recall@5": 0.26666666666666666,
+      "hit@5": 0.26666666666666666,
+      "mrr@5": 0.20833333333333334,
+      "ndcg@5": 0.22308453550721027,
+      "recall@10": 0.26666666666666666,
+      "hit@10": 0.26666666666666666,
+      "mrr@10": 0.20833333333333334,
+      "ndcg@10": 0.22308453550721027,
+      "hit@50": 0.5,
+      "n_unanswerable": 0.0
+    },
+    "n_questions": 95,
+    "seconds": 27.18,
+    "stage": "final",
+    "fraction": 1.0,
+    "stats": {
+      "docs": 0,
+      "chunks": 2498,
+      "parse_seconds": 0.0,
+      "parse_cache_hits": 0,
+      "chunk_seconds": 0.0,
+      "embed_seconds": 0.0,
+      "embedded_texts": 0,
+      "embed_cache_hits": 0,
+      "index_seconds": 0.26826047897338867
+    }
+  },
+  "default": {
+    "config": {
+      "parser": "pymupdf-text",
+      "chunker": "recursive",
+      "chunk_params": {
+        "size": 512,
+        "overlap": 50
+      },
+      "embedder": "bge-small",
+      "retrieval": "dense",
+      "reranker": null,
+      "top_k": 5,
+      "candidates": 50,
+      "rerank_depth": 20,
+      "label": "frozen-default"
+    },
+    "key": "pymupdf-text|recursive-50-512|bge-small|dense|norerank|k5|4813b9e7",
+    "metrics": {
+      "n_answerable": 85.0,
+      "recall@5": 0.5058823529411764,
+      "hit@5": 0.5058823529411764,
+      "mrr@5": 0.326078431372549,
+      "ndcg@5": 0.3706161697027994,
+      "recall@10": 0.6,
+      "hit@10": 0.6,
+      "mrr@10": 0.33886554621848736,
+      "ndcg@10": 0.4012750979808883,
+      "hit@50": 0.8117647058823529,
+      "n_unanswerable": 10.0,
+      "refusal_rate@p10": 1.0
+    },
+    "real_metrics": {
+      "n_answerable": 30.0,
+      "recall@5": 0.36666666666666664,
+      "hit@5": 0.36666666666666664,
+      "mrr@5": 0.14944444444444444,
+      "ndcg@5": 0.20298181009916977,
+      "recall@10": 0.4666666666666667,
+      "hit@10": 0.4666666666666667,
+      "mrr@10": 0.1630952380952381,
+      "ndcg@10": 0.23560198832447785,
+      "hit@50": 0.7333333333333333,
+      "n_unanswerable": 0.0
+    },
+    "n_questions": 95,
+    "seconds": 2.06,
+    "stage": "default",
+    "fraction": 1.0,
+    "stats": {
+      "docs": 0,
+      "chunks": 751,
+      "parse_seconds": 0.0,
+      "parse_cache_hits": 0,
+      "chunk_seconds": 0.0,
+      "embed_seconds": 0.012397289276123047,
+      "embedded_texts": 0,
+      "embed_cache_hits": 751,
+      "index_seconds": 0.01466059684753418
+    }
+  },
+  "stage1": [
+    {
+      "config": {
+        "parser": "docling",
+        "chunker": "structure",
+        "chunk_params": {
+          "target_words": 300,
+          "max_words": 600
+        },
+        "embedder": null,
+        "retrieval": "sparse",
+        "reranker": null,
+        "top_k": 5,
+        "candidates": 50,
+        "rerank_depth": 20,
+        "label": null
+      },
+      "key": "docling|structure-600-300|none|sparse|norerank|k5|58027d4d",
+      "metrics": {
+        "n_answerable": 85.0,
+        "recall@5": 0.9411764705882353,
+        "hit@5": 0.9411764705882353,
+        "mrr@5": 0.7958823529411765,
+        "ndcg@5": 0.8329324497610093,
+        "recall@10": 1.0,
+        "hit@10": 1.0,
+        "mrr@10": 0.8042623716153128,
+        "ndcg@10": 0.8524882448198221,
+        "hit@50": 1.0,
+        "n_unanswerable": 10.0,
+        "refusal_rate@p10": 1.0
+      },
+      "real_metrics": null,
+      "n_questions": 95,
+      "seconds": 0.93,
+      "stage": "s1/r3",
+      "fraction": 1.0,
+      "stats": {
+        "docs": 0,
+        "chunks": 2498,
+        "parse_seconds": 0.0,
+        "parse_cache_hits": 0,
+        "chunk_seconds": 0.0,
+        "embed_seconds": 0.0,
+        "embedded_texts": 0,
+        "embed_cache_hits": 0,
+        "index_seconds": 0.8573410511016846
+      }
+    },
+    {
+      "config": {
+        "parser": "pymupdf-text",
+        "chunker": "recursive",
+        "chunk_params": {
+          "size": 512,
+          "overlap": 50
+        },
+        "embedder": null,
+        "retrieval": "sparse",
+        "reranker": null,
+        "top_k": 5,
+        "candidates": 50,
+        "rerank_depth": 20,
+        "label": null
+      },
+      "key": "pymupdf-text|recursive-50-512|none|sparse|norerank|k5|026d4f5a",
+      "metrics": {
+        "n_answerable": 85.0,
+        "recall@5": 0.9294117647058824,
+        "hit@5": 0.9294117647058824,
+        "mrr@5": 0.690392156862745,
+        "ndcg@5": 0.7510677624091485,
+        "recall@10": 0.9764705882352941,
+        "hit@10": 0.9764705882352941,
+        "mrr@10": 0.6962371615312792,
+        "ndcg@10": 0.7658531916873665,
+        "hit@50": 1.0,
+        "n_unanswerable": 10.0,
+        "refusal_rate@p10": 1.0
+      },
+      "real_metrics": null,
+      "n_questions": 95,
+      "seconds": 0.58,
+      "stage": "s1/r3",
+      "fraction": 1.0,
+      "stats": {
+        "docs": 0,
+        "chunks": 751,
+        "parse_seconds": 0.0,
+        "parse_cache_hits": 0,
+        "chunk_seconds": 0.0,
+        "embed_seconds": 0.0,
+        "embedded_texts": 0,
+        "embed_cache_hits": 0,
+        "index_seconds": 0.283327579498291
+      }
+    },
+    {
+      "config": {
+        "parser": "docling",
+        "chunker": "recursive",
+        "chunk_params": {
+          "size": 512,
+          "overlap": 50
+        },
+        "embedder": null,
+        "retrieval": "sparse",
+        "reranker": null,
+        "top_k": 5,
+        "candidates": 50,
+        "rerank_depth": 20,
+        "label": null
+      },
+      "key": "docling|recursive-50-512|none|sparse|norerank|k5|a69d9a8a",
+      "metrics": {
+        "n_answerable": 85.0,
+        "recall@5": 0.9294117647058824,
+        "hit@5": 0.9294117647058824,
+        "mrr@5": 0.7258823529411765,
+        "ndcg@5": 0.777614404204539,
+        "recall@10": 0.9647058823529412,
+        "hit@10": 0.9647058823529412,
+        "mrr@10": 0.7305042016806722,
+        "ndcg@10": 0.7889586758151834,
+        "hit@50": 1.0,
+        "n_unanswerable": 10.0,
+        "refusal_rate@p10": 1.0
+      },
+      "real_metrics": null,
+      "n_questions": 95,
+      "seconds": 0.38,
+      "stage": "s1/r3",
+      "fraction": 1.0,
+      "stats": {
+        "docs": 0,
+        "chunks": 850,
+        "parse_seconds": 0.0,
+        "parse_cache_hits": 0,
+        "chunk_seconds": 0.0,
+        "embed_seconds": 0.0,
+        "embedded_texts": 0,
+        "embed_cache_hits": 0,
+        "index_seconds": 0.32872939109802246
+      }
+    },
+    {
+      "config": {
+        "parser": "pymupdf-text",
+        "chunker": "structure",
+        "chunk_params": {
+          "target_words": 300,
+          "max_words": 600
+        },
+        "embedder": null,
+        "retrieval": "sparse",
+        "reranker": null,
+        "top_k": 5,
+        "candidates": 50,
+        "rerank_depth": 20,
+        "label": null
+      },
+      "key": "pymupdf-text|structure-600-300|none|sparse|norerank|k5|ca6a65cf",
+      "metrics": {
+        "n_answerable": 85.0,
+        "recall@5": 0.8,
+        "hit@5": 0.8,
+        "mrr@5": 0.5868627450980393,
+        "ndcg@5": 0.6401246817178333,
+        "recall@10": 0.8705882352941177,
+        "hit@10": 0.8705882352941177,
+        "mrr@10": 0.5969234360410831,
+        "ndcg@10": 0.6636020454040972,
+        "hit@50": 0.9411764705882353,
+        "n_unanswerable": 10.0,
+        "refusal_rate@p10": 1.0
+      },
+      "real_metrics": null,
+      "n_questions": 95,
+      "seconds": 0.45,
+      "stage": "s1/r3",
+      "fraction": 1.0,
+      "stats": {
+        "docs": 0,
+        "chunks": 1966,
+        "parse_seconds": 0.0,
+        "parse_cache_hits": 0,
+        "chunk_seconds": 0.0,
+        "embed_seconds": 0.0,
+        "embedded_texts": 0,
+        "embed_cache_hits": 0,
+        "index_seconds": 0.34923219680786133
+      }
+    }
+  ],
+  "stage2": [
+    {
+      "config": {
+        "parser": "docling",
+        "chunker": "structure",
+        "chunk_params": {
+          "target_words": 300,
+          "max_words": 600
+        },
+        "embedder": null,
+        "retrieval": "sparse",
+        "reranker": "minilm",
+        "top_k": 5,
+        "candidates": 50,
+        "rerank_depth": 20,
+        "label": null
+      },
+      "key": "docling|structure-600-300|none|sparse|minilm@20|k5|ca889504",
+      "metrics": {
+        "n_answerable": 85.0,
+        "recall@5": 0.9529411764705882,
+        "hit@5": 0.9529411764705882,
+        "mrr@5": 0.7768627450980392,
+        "ndcg@5": 0.821683317417937,
+        "recall@10": 1.0,
+        "hit@10": 1.0,
+        "mrr@10": 0.7830018674136321,
+        "ndcg@10": 0.8367793355251885,
+        "hit@50": 1.0,
+        "n_unanswerable": 10.0,
+        "refusal_rate@p10": 1.0
+      },
+      "real_metrics": null,
+      "n_questions": 95,
+      "seconds": 31.78,
+      "stage": "s2/final",
+      "fraction": 1.0,
+      "stats": {
+        "docs": 0,
+        "chunks": 2498,
+        "parse_seconds": 0.0,
+        "parse_cache_hits": 0,
+        "chunk_seconds": 0.0,
+        "embed_seconds": 0.0,
+        "embedded_texts": 0,
+        "embed_cache_hits": 0,
+        "index_seconds": 0.2816288471221924
+      }
+    },
+    {
+      "config": {
+        "parser": "docling",
+        "chunker": "structure",
+        "chunk_params": {
+          "target_words": 300,
+          "max_words": 600
+        },
+        "embedder": null,
+        "retrieval": "sparse",
+        "reranker": null,
+        "top_k": 5,
+        "candidates": 50,
+        "rerank_depth": 20,
+        "label": null
+      },
+      "key": "docling|structure-600-300|none|sparse|norerank|k5|58027d4d",
+      "metrics": {
+        "n_answerable": 85.0,
+        "recall@5": 0.9411764705882353,
+        "hit@5": 0.9411764705882353,
+        "mrr@5": 0.7958823529411765,
+        "ndcg@5": 0.8329324497610093,
+        "recall@10": 1.0,
+        "hit@10": 1.0,
+        "mrr@10": 0.8042623716153128,
+        "ndcg@10": 0.8524882448198221,
+        "hit@50": 1.0,
+        "n_unanswerable": 10.0,
+        "refusal_rate@p10": 1.0
+      },
+      "real_metrics": null,
+      "n_questions": 95,
+      "seconds": 0.34,
+      "stage": "s2/final",
+      "fraction": 1.0,
+      "stats": {
+        "docs": 0,
+        "chunks": 2498,
+        "parse_seconds": 0.0,
+        "parse_cache_hits": 0,
+        "chunk_seconds": 0.0,
+        "embed_seconds": 0.0,
+        "embedded_texts": 0,
+        "embed_cache_hits": 0,
+        "index_seconds": 0.2709057331085205
+      }
+    },
+    {
+      "config": {
+        "parser": "docling",
+        "chunker": "structure",
+        "chunk_params": {
+          "target_words": 300,
+          "max_words": 600
+        },
+        "embedder": null,
+        "retrieval": "better-rag",
+        "reranker": "minilm",
+        "top_k": 5,
+        "candidates": 50,
+        "rerank_depth": 20,
+        "label": null
+      },
+      "key": "docling|structure-600-300|none|better-rag|minilm@20|k5|e13c6395",
+      "metrics": {
+        "n_answerable": 85.0,
+        "recall@5": 0.9294117647058824,
+        "hit@5": 0.9294117647058824,
+        "mrr@5": 0.7637254901960785,
+        "ndcg@5": 0.8060921821757054,
+        "recall@10": 0.9647058823529412,
+        "hit@10": 0.9647058823529412,
+        "mrr@10": 0.7683940242763773,
+        "ndcg@10": 0.8174768487913601,
+        "hit@50": 0.9882352941176471,
+        "n_unanswerable": 10.0,
+        "refusal_rate@p10": 1.0
+      },
+      "real_metrics": null,
+      "n_questions": 95,
+      "seconds": 12.45,
+      "stage": "s2/final",
+      "fraction": 1.0,
+      "stats": {
+        "docs": 0,
+        "chunks": 2498,
+        "parse_seconds": 0.0,
+        "parse_cache_hits": 0,
+        "chunk_seconds": 0.0,
+        "embed_seconds": 0.0,
+        "embedded_texts": 0,
+        "embed_cache_hits": 0,
+        "index_seconds": 0.2712876796722412
+      }
+    }
+  ],
+  "grid": null
+}

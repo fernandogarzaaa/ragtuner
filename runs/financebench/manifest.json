@@ -1,0 +1,49 @@
+{
+  "config_hash": "cc0915b146b529dc2af820746eb20fc05b149358a72126e000b04084dac13241",
+  "config_key": "docling|structure-600-300|none|sparse|minilm@20|k5|ca889504",
+  "ragtuner_version": "0.0.1",
+  "ragtuner_commit": "86fd45ed4f96ee9216afb0e5762445504cd04775",
+  "python": "3.13.18",
+  "platform": "Linux-6.18.44-fc-v242-x86_64-with-glibc2.39",
+  "packages": {
+    "pymupdf": "2.1",
+    "docling": "2.148.0",
+    "sentence-transformers": "6.2.0",
+    "torch": "2.15.0+cpu",
+    "better-rag": "0.1.0",
+    "numpy": "2.5.3"
+  },
+  "models": {
+    "embedder": null,
+    "reranker": "minilm"
+  },
+  "metrics": {
+    "synthetic": {
+      "n_answerable": 85.0,
+      "recall@5": 0.9529411764705882,
+      "hit@5": 0.9529411764705882,
+      "mrr@5": 0.7768627450980392,
+      "ndcg@5": 0.821683317417937,
+      "recall@10": 1.0,
+      "hit@10": 1.0,
+      "mrr@10": 0.7830018674136321,
+      "ndcg@10": 0.8367793355251885,
+      "hit@50": 1.0,
+      "n_unanswerable": 10.0,
+      "refusal_rate@p10": 1.0
+    },
+    "real": {
+      "n_answerable": 30.0,
+      "recall@5": 0.26666666666666666,
+      "hit@5": 0.26666666666666666,
+      "mrr@5": 0.20833333333333334,
+      "ndcg@5": 0.22308453550721027,
+      "recall@10": 0.26666666666666666,
+      "hit@10": 0.26666666666666666,
+      "mrr@10": 0.20833333333333334,
+      "ndcg@10": 0.22308453550721027,
+      "hit@50": 0.5,
+      "n_unanswerable": 0.0
+    }
+  }
+}
