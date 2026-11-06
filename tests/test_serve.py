@@ -157,3 +157,11 @@ def test_export_bundle_verifies_over_http_and_monitor(tmp_path):
     signals = {p["signal"] for p in m["proposals"]}
     assert "stale_index" in signals and m["freshness"]["changed"] == 1
     assert m["queries"] == 20 and ("low_confidence" in signals or "empty" in signals)
+
+
+def test_extractive_answer_strips_table_markup():
+    from ragtuner.pipeline import Hit
+
+    h = Hit("c", "d", 0, 10, 1.0, 1, "| Item | Fee |\n|---|---|\n| Restocking fee for returns | $5 |\n\nThe restocking fee applies to opened items.")
+    ans = Runtime._extractive("What is the restocking fee?", [h])
+    assert "|" not in ans and "---" not in ans and "restocking fee" in ans.lower()

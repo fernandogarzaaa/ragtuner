@@ -25,6 +25,7 @@ from ragtuner.pipeline import ModelPool, RetrievalIndex, build_index
 from ragtuner.schema import hash_file
 
 _SENT = re.compile(r"(?<=[.!?])\s+")
+_TABLE_SEP = re.compile(r"\|?(\s*:?-{3,}:?\s*\|)+")
 
 
 def corpus_state(files: list[Path]) -> dict[str, str]:
@@ -117,7 +118,9 @@ class Runtime:
         q = set(tokenize(query))
         ranked = []
         for rank, h in enumerate(hits):
-            for s in _SENT.split(h.text):
+            # flatten markdown table syntax (cell pipes, separator rows) before sentence splitting
+            text = _TABLE_SEP.sub(" ", h.text).replace("|", " ")
+            for s in _SENT.split(" ".join(text.split())):
                 s = s.strip()
                 if len(s.split()) < 4:
                     continue
