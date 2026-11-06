@@ -150,7 +150,8 @@ built and tested offline but was not run live (no paid LLM credit).
 | check | result |
 |---|---|
 | Bundle served in-process, IRS winner (Docling), eval replayed over HTTP | 100 of 100 questions, identical top-10 chunk ids |
-| Bundle built with its own Dockerfile, run as a container, replayed with `export --verify --url` | 39 of 39 identical (PyMuPDF config; Docling image below) |
+| Bundle built with its own Dockerfile, run as a container, replayed with `export --verify --url` (PyMuPDF config, 613 MB image) | 39 of 39 identical |
+| Same for the real IRS winner (Docling, 2.9 GB image, parsed from scratch inside the container) | 100 of 100 identical |
 | Official MCP Python SDK client against `ragtuner mcp` on the IRS index | initialize, tools/list, search and ask all succeed |
 | Monitor on the container's real query log | drift and low-confidence signals computed; freshness clean |
 
