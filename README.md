@@ -1,65 +1,82 @@
 # ragtuner
 
-Eval-driven RAG configuration tuner. Point it at a corpus; it profiles the data,
-generates a span-anchored eval set, searches the config space, diagnoses failures,
-and exports the winning config as code.
+Eval-driven RAG configuration tuner. Point it at a corpus; it parses the documents into
+a block model, generates a span-anchored eval set, searches the config space (parser,
+chunker, embedder, retrieval mode, reranker) with a staged successive-halving search,
+scores every config by span containment, diagnoses the winner's misses with named
+fixes, and exports the winning config with a manifest that ties it to the exact runtime
+that evaluated it. See `docs/phase1-spec.md` for the decisions and the pre-registered
+hypothesis, and `docs/phase1-results.md` for what the runs showed.
 
-Status: Phase 1, parser layer. See `docs/phase1-spec.md` for every decision.
+## The loop
 
-## What exists today
+```
+corpus/ --parse--> blocks (offsets) --chunk--> chunks (offsets) --index--> retrieve
+                      |                                                        |
+                      +--evalgen--> questions with gold char spans --score (span containment)
+```
 
-- `ragtuner.schema`: the intermediate document model. Typed blocks (paragraph, heading,
-  table, list, caption) with page, bbox, structured table cells, and exact character
-  offsets into one canonical text. Gold eval answers anchor to these offsets, so one
-  eval set scores every chunking strategy fairly.
-- `ragtuner.parse`: pluggable parser backends behind one interface.
-  - `plaintext` (.txt, .md): deterministic, no dependencies.
-  - `pymupdf-text` (.pdf): fast local text layout, headings by font size. Deliberately
-    extracts no tables; it is the text-only arm of the comparison.
-  - `docling` (.pdf and more): layout model with tables. Optional install, not yet
-    executed in CI. First real-PDF run is the verification step.
-- `ragtuner.cache.ParseCache`: content-addressed cache keyed by parser, parser
-  version, and file hash.
-- `ragtuner.parse.gate`: the 20-page parser gate. Samples pages, builds a labeling
-  sheet with page images, and scores cell-level precision/recall/F1 per parser once a
-  human fills in the gold cells.
+The one invariant that makes this fair: gold answers are character spans in the parsed
+document, never chunk ids. Any chunker's output maps back to those offsets, so one eval
+set scores every configuration.
+
+## Commands
+
+```bash
+ragtuner parsers                                   # which backends import
+ragtuner parse doc.pdf --parser docling --summary  # block model for one file
+ragtuner gate sample corpus/ --n 20 --parsers pymupdf-text,docling --out gate_out
+ragtuner gate score --sheet gate_out/sheet.jsonl --gold gate_out/gold.jsonl
+ragtuner evalgen corpus/ --parser docling --n 100 --real-financebench rows.jsonl --out eval.jsonl
+ragtuner tune corpus/ --evalset eval.jsonl --space phase1 --with-grid --out runs/corpus
+ragtuner replay corpus/ --run runs/corpus          # exported config reproduces the tuner's hits
+ragtuner query corpus/ --config runs/corpus/best_config.yaml "your question"
+```
+
+`tune` writes `report.md`, `report.json`, `best_config.yaml`, `manifest.json`,
+`diagnoses.json`, `eval_set.jsonl`, `search.json`, and per-question results for the
+winner and the default.
+
+## Modules
+
+| module | what it does |
+|---|---|
+| `ragtuner.schema` | Block model: typed blocks with page, bbox, table cells, exact offsets into one canonical text |
+| `ragtuner.parse` | Backends `plaintext`, `pymupdf-text` (text only, the baseline arm), `docling` (layout + tables); the 20-page parser gate |
+| `ragtuner.chunk` | `fixed` word window (BETTER-RAG semantics), `recursive` (blocks, sentences, words), `structure` (tables whole, heading-path prefixes) |
+| `ragtuner.embed` | `bge-small` local, `openai-small` (needs `OPENAI_API_KEY`), `hash-64` for tests; SQLite embedding cache by (model, text hash) |
+| `ragtuner.index` | BM25 with light stemming, brute-force dense index, reciprocal rank fusion, cross-encoder reranker |
+| `ragtuner.pipeline` | `RagConfig` to a retrieval index with caches and a model pool; `better-rag` mode runs BETTER-RAG's scorer over any chunker |
+| `ragtuner.evalset`, `ragtuner.metrics` | Span-anchored questions; recall, MRR, nDCG, hit@50 by span containment; refusal gate on unanswerable questions |
+| `ragtuner.evalgen` | `LLMGenerator` (Claude, evidence must be located verbatim, paraphrase pass lowers lexical overlap), `HeuristicGenerator` (offline, lexically leaky, reported separately), FinanceBench and QA-pair importers |
+| `ragtuner.search` | Config space with constraints, evaluator, staged search with successive halving, full grid and regret |
+| `ragtuner.diagnose` | Deterministic failure stage per miss (parse, chunk, deep, rank), attribute lift with minimum support, fix recipes, question ids |
+| `ragtuner.judge` | Stage 3 generation quality with Claude (answer from context, judged against gold); skipped without credentials |
+| `ragtuner.report` | Markdown and JSON report, verdict on the pre-registered hypothesis, config export with manifest |
 
 ## Install
 
 ```bash
 python3 -m venv .venv && source .venv/bin/activate
-pip install -e ".[dev]"
-pip install -e ".[docling]"   # optional, pulls in PyTorch
+pip install -e ".[dev,local]"     # tests, local embedder and reranker (PyTorch)
+pip install -e ".[docling]"       # layout parser with tables (PyTorch, model download on first use)
+pip install -e ".[llm]"           # Claude question generator and judge
 ```
 
-## Use
+On a CPU-only machine install PyTorch and torchvision from the CPU index first so they
+match (`pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu`);
+a mismatched torchvision breaks Docling's image processor import.
 
-```bash
-ragtuner parsers
-ragtuner parse report.pdf --parser pymupdf-text --out report.json
-ragtuner gate sample corpus/ --n 20 --parsers pymupdf-text,docling --out gate_out
-# fill in gate_out/gold_template.jsonl using the PNGs in gate_out/pages/
-ragtuner gate score --sheet gate_out/sheet.jsonl --gold gate_out/gold.jsonl --threshold 0.8
-```
+## Honest status
 
-## Gate rule
+What is verified by tests or by runs in this repo's history is listed in
+`docs/phase1-results.md`. Two gaps are structural rather than bugs:
 
-Docling must reach cell F1 >= 0.80 on the FinanceBench sample or a hosted parser arm is
-added to the config space. Nothing downstream runs before the gate has a result.
-
-## Verified so far (2026-11-05)
-
-- 14 tests pass on Python 3.13; the Docling test skips when Docling is not installed.
-- IRS Publication 334 (57 pages, born-digital) parses with `pymupdf-text` in about
-  0.6 seconds, all pages covered, 1,563 blocks.
-- `ragtuner gate sample` on that PDF produced 20 pages (12 table candidates, 8 random)
-  with page images in about 26 seconds. A visual check of one candidate page confirmed
-  a real table.
-
-## Known gaps
-
-- `pymupdf-text` heading heuristic tags table-of-contents lines with dot leaders and
-  some bullet lines as headings. Left as is: it is the text-only baseline arm, and the
-  eval, not the parser, decides whether that matters.
-- The Docling backend has not been executed yet. Installing it and running
-  `pytest tests/test_docling_backend.py` against a real PDF is the next verification.
+- The Claude-based generator and judge have unit tests with fake callers but have not
+  been run against the live API from this environment (no credentials here). The runs
+  used the heuristic generator, whose questions name words from the gold span and
+  therefore favor sparse retrieval. The report labels this on every run.
+- Real queries only count when their gold spans are trustworthy. FinanceBench ships
+  human evidence, so its real set is anchored. IRS FAQ answers could not be anchored by
+  lexical matching (the matches were wrong on inspection), so that corpus has no real
+  set rather than a misleading one.
