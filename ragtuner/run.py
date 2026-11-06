@@ -128,6 +128,10 @@ def tune(corpus: Corpus, evalset: EvalSet, *, out: Path, cache_root: Path, space
             grid_rep = full_grid(ev, space, evalset, default_cfg)
             reg = regret(rep, grid_rep)
             rep.grid = grid_rep.grid
+            notes.append(f"Staged search alone: {rep.evaluations} evaluations in {rep.seconds / 60:.1f} min. "
+                         f"The full grid for the regret check added {ev.evaluations - rep.evaluations} evaluations and {grid_rep.seconds / 60:.1f} min.")
+            rep.seconds += grid_rep.seconds
+            rep.evaluations = ev.evaluations
     assert rep.winner.results is not None and rep.default.results is not None
     # failure analysis must see spans in the same text as the config's chunks
     fails = analyze(ev.questions_for(rep.winner.config.parser, evalset.questions), rep.winner.results, ev.chunks(rep.winner.config), k=5)
