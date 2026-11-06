@@ -1,6 +1,6 @@
 # Phase 1 results
 
-Status: all three corpus runs complete; the FinanceBench cross-validation section is filled in when that run finishes. Everything here
+Status: complete. All three corpus runs and the FinanceBench cross-validation are recorded below. Everything here
 comes from runs recorded in `data/` and `runs/` of this repo or from the test suite.
 
 ## Environment
@@ -109,3 +109,58 @@ parser dimension decides the outcome, and the search surfaces it without a human
 looking at the PDF.
 
 `ragtuner replay` reproduced the winner's results for all 31 questions.
+
+### FinanceBench cross-validation: is selection the problem, or the eval set?
+
+Artifacts: `runs/financebench_crossval/`. Every one of the 64 configs in the space was
+scored on both the synthetic and the real questions (`ragtuner crossval`).
+
+| measure | value |
+|---|---|
+| Spearman, synthetic vs real recall@5 ranking of the 64 configs | -0.121 |
+| Default, real recall@5 | 0.367 |
+| Synthetic-selected winner, real recall@5 | 0.267 |
+| Best config on the full real set (optimistic: selected on the test questions) | 0.467 |
+| Select on a random half of the real questions, score on the other half: mean delta vs default | -0.049 |
+| Same, share of 500 splits where the pick beats the default | 21% |
+
+Mean real recall@5 by family: dense with reranker 0.362, hybrid with reranker 0.329,
+hybrid 0.317, dense 0.312, BM25 with reranker 0.296, BETTER-RAG with reranker 0.267,
+BM25 0.217, BETTER-RAG 0.179. The real questions reward the opposite of what the
+heuristic set rewards.
+
+## Conclusions
+
+1. **The hypothesis failed where it could be tested, and the cause is identified.** The
+   heuristic synthetic set's config ranking is uncorrelated with the real ranking
+   (rho = -0.12), so selecting on it is worse than not tuning. This is a property of the
+   offline generator, which copies rare words from the evidence, not of the search,
+   which recovers the grid optimum within about one point (IRS regret 0.011).
+2. **There is headroom over the default, but 30 real questions cannot find it reliably.**
+   The best config beats the default by 10 points on the full real set, but that is
+   selected on the test questions. Selecting on 15 real questions and testing on the
+   other 15 loses to the default on average. Tuning needs either an unbiased synthetic
+   set or a larger real set.
+3. **The parser dimension is decisive on scanned content.** On the image-only deck the
+   text-only default retrieves nothing and the search finds that without inspection.
+4. **The diagnosis layer earned its place.** On FinanceBench it attributed the winner's
+   real misses to low-overlap numeric and table questions failing at depth and named
+   dense or hybrid retrieval as the fix, which the cross-validation then confirmed.
+
+## What would change the verdict (next steps, in order)
+
+1. Run the Claude generator (`--generator llm`) on FinanceBench and repeat `crossval`.
+   The question it answers: does an LLM generator with the paraphrase pass bring the
+   synthetic-vs-real correlation from -0.12 to clearly positive? If not, the thesis
+   reduces to "eval plus diagnosis", as the spec anticipated.
+2. Grow the real set: all 150 open FinanceBench questions span 84 filings. The 8-filing
+   subset here was chosen for CPU time.
+3. Add `OPENAI_API_KEY` so the frozen default runs with its intended embedder.
+
+## Not done, and why
+
+- Claude question generation and the generation judge were not run live: no Anthropic
+  credentials in this environment. Both have offline tests with fake callers.
+- The OpenAI embedder arm was not run: no key. The default ran with bge-small instead.
+- IRS has no real set: lexical matching of FAQ answers to the publication produced wrong
+  gold spans on inspection, so those questions were dropped instead of reported.
