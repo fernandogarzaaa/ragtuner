@@ -99,8 +99,13 @@ class Evaluator:
     parser and chunk lists per (parser, chunker) within the process."""
 
     def __init__(self, corpus: Corpus, *, cache_root: str | Path = ".ragtuner-cache", pool: ModelPool | None = None,
-                 log: Callable[[str], None] | None = None) -> None:
+                 log: Callable[[str], None] | None = None, anchor_parser: str | None = None) -> None:
         self.corpus = corpus
+        # The parser whose text the eval set's gold offsets point into. Configs using any
+        # other parser get their questions' spans projected onto that parser's text.
+        self.anchor_parser = anchor_parser
+        self._projected: dict[tuple[str, str], EvalQuestion] = {}
+        self.projection_stats: dict[str, dict[str, int]] = {}
         self.cache_root = Path(cache_root)
         self.pool = pool or ModelPool()
         self.parse_cache = ParseCache(self.cache_root)
@@ -125,6 +130,25 @@ class Evaluator:
             self._chunks[key] = chunk_docs(self.docs(config.parser), config)
         return self._chunks[key]
 
+    def questions_for(self, parser: str, questions: list[EvalQuestion]) -> list[EvalQuestion]:
+        """Questions whose gold spans point into `parser`'s text."""
+        if self.anchor_parser is None or parser == self.anchor_parser:
+            return questions
+        missing = [q for q in questions if (parser, q.id) not in self._projected]
+        if missing:
+            from ragtuner.align import project_questions
+
+            anchor = {d.id: d for d in self.docs(self.anchor_parser)}
+            target = {d.id: d for d in self.docs(parser)}
+            projected, stats = project_questions(missing, anchor, target)
+            for q in projected:
+                self._projected[(parser, q.id)] = q
+            agg = self.projection_stats.setdefault(parser, {"spans": 0, "exact": 0, "fuzzy": 0, "lost": 0})
+            for k, v in stats.items():
+                agg[k] += v
+            self.log(f"projected {stats['spans']} gold spans {self.anchor_parser} -> {parser}: {stats}")
+        return [self._projected[(parser, q.id)] for q in questions]
+
     def index(self, config: RagConfig) -> tuple[RetrievalIndex, BuildStats]:
         stats = BuildStats()
         idx = RetrievalIndex(config, self.chunks(config), pool=self.pool, emb_cache=self.emb_cache, stats=stats)
@@ -134,6 +158,9 @@ class Evaluator:
                  keep_results: bool = False, real: list[EvalQuestion] | None = None) -> ConfigResult:
         t = time.time()
         idx, stats = self.index(config)
+        questions = self.questions_for(config.parser, questions)
+        if real:
+            real = self.questions_for(config.parser, real)
         results = [score_question(q, idx.retrieve(q.question, k=CANDIDATES, candidates=CANDIDATES)) for q in questions]
         metrics = aggregate(results)
         real_metrics = None
@@ -204,6 +231,7 @@ class SearchReport:
 def staged_search(ev: Evaluator, space: Space, evalset: EvalSet, default: RagConfig, *, carry: int = 2,
                   real: EvalSet | None = None, metric: str = PRIMARY_METRIC, seed: int = 0) -> SearchReport:
     t = time.time()
+    _set_anchor(ev, evalset, space)
     synthetic = evalset.synthetic if len(evalset.synthetic) else evalset
     real_qs = real.questions if real else (evalset.real.questions or None)
     ev.log(f"stage 1: {len(space.stage1())} configs (parser x chunker x embedder), selecting on {metric} over {len(synthetic)} synthetic questions")
@@ -228,6 +256,7 @@ def full_grid(ev: Evaluator, space: Space, evalset: EvalSet, default: RagConfig,
     """Every valid config on the full synthetic set. Used to measure the regret of the
     staged search on a small corpus; too expensive for routine use."""
     t = time.time()
+    _set_anchor(ev, evalset, space)
     synthetic = evalset.synthetic if len(evalset.synthetic) else evalset
     real_qs = real.questions if real else (evalset.real.questions or None)
     grid = [ev.evaluate(c, synthetic.questions, stage="grid", real=real_qs) for c in space.grid()]
@@ -236,6 +265,13 @@ def full_grid(ev: Evaluator, space: Space, evalset: EvalSet, default: RagConfig,
     default_res = ev.evaluate(default, synthetic.questions, stage="default", keep_results=True, real=real_qs)
     return SearchReport(corpus=ev.corpus.name, space=_space_dict(space), stage1=[], stage2=[], winner=winner, default=default_res,
                         evaluations=ev.evaluations, seconds=time.time() - t, mode="grid", grid=grid)
+
+
+def _set_anchor(ev: Evaluator, evalset: EvalSet, space: Space) -> None:
+    if ev.anchor_parser is None:
+        ev.anchor_parser = evalset.metadata.get("parser")
+    if ev.anchor_parser is None and len(space.parsers) > 1:
+        raise ValueError("the eval set does not record its anchor parser; spans cannot be compared across parsers")
 
 
 def regret(staged: SearchReport, grid: SearchReport, metric: str = PRIMARY_METRIC) -> dict[str, float]:
