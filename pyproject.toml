@@ -44,3 +44,6 @@ python_version = "3.11"
 strict = true
 files = ["ragtuner"]
 ignore_missing_imports = true
+
+[tool.setuptools.package-data]
+"ragtuner.serve" = ["widget.js", "demo.html"]

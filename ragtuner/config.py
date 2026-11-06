@@ -12,6 +12,7 @@ from typing import Any
 import yaml
 
 RETRIEVAL_MODES = ("sparse", "dense", "hybrid", "better-rag")
+QUERY_REWRITES = (None, "prf", "llm")
 
 
 @dataclass(frozen=True)
@@ -25,6 +26,7 @@ class RagConfig:
     top_k: int = 5
     candidates: int = 50
     rerank_depth: int = 20  # the reranker reorders only the top rerank_depth candidates
+    query_rewrite: str | None = None  # None | "prf" (pseudo-relevance feedback) | "llm"
     label: str | None = None
 
     def validate(self) -> None:
@@ -36,6 +38,8 @@ class RagConfig:
             raise ValueError("need 0 < top_k <= candidates")
         if self.rerank_depth < self.top_k:
             raise ValueError("rerank_depth must be >= top_k")
+        if self.query_rewrite not in QUERY_REWRITES:
+            raise ValueError(f"query_rewrite must be one of {QUERY_REWRITES}")
 
     @property
     def chunker_key(self) -> str:
@@ -47,10 +51,13 @@ class RagConfig:
         """Short stable id used in reports and cache paths."""
         d = self.to_dict()
         d.pop("label", None)
+        if d.get("query_rewrite") is None:
+            d.pop("query_rewrite", None)  # keeps keys of configs from before this field existed
         h = hashlib.sha256(json.dumps(d, sort_keys=True).encode()).hexdigest()[:8]
         emb = self.embedder or "none"
         rr = f"{self.reranker}@{self.rerank_depth}" if self.reranker else "norerank"
-        return f"{self.parser}|{self.chunker_key}|{emb}|{self.retrieval}|{rr}|k{self.top_k}|{h}"
+        qr = f"|qr-{self.query_rewrite}" if self.query_rewrite else ""
+        return f"{self.parser}|{self.chunker_key}|{emb}|{self.retrieval}{qr}|{rr}|k{self.top_k}|{h}"
 
     def to_dict(self) -> dict[str, Any]:
         d = asdict(self)

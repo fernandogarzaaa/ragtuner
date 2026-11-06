@@ -81,6 +81,47 @@ def build_parser() -> argparse.ArgumentParser:
     cv.add_argument("--space", default="phase1")
     cv.add_argument("--splits", type=int, default=200)
 
+    sv = sub.add_parser("serve", help="Serve an exported config as an HTTP API with a chat widget")
+    sv.add_argument("corpus_dir")
+    sv.add_argument("--config", required=True)
+    sv.add_argument("--name", default=None)
+    sv.add_argument("--cache", default=".ragtuner-cache")
+    sv.add_argument("--host", default="127.0.0.1")
+    sv.add_argument("--port", type=int, default=8080)
+    sv.add_argument("--query-log", default=None, help="Append every query to this JSONL file (for ragtuner monitor)")
+    sv.add_argument("--cors-origin", default="*")
+
+    mc = sub.add_parser("mcp", help="Serve an exported config as an MCP server over stdio")
+    mc.add_argument("corpus_dir")
+    mc.add_argument("--config", required=True)
+    mc.add_argument("--name", default=None)
+    mc.add_argument("--cache", default=".ragtuner-cache")
+    mc.add_argument("--query-log", default=None)
+    mc.add_argument("--tenant", default=None)
+    mc.add_argument("--principal", default=None)
+
+    sy = sub.add_parser("sync", help="Incrementally re-index a corpus for a config and report what changed")
+    sy.add_argument("corpus_dir")
+    sy.add_argument("--config", required=True)
+    sy.add_argument("--name", default=None)
+    sy.add_argument("--cache", default=".ragtuner-cache")
+    sy.add_argument("--state", required=True, help="JSON file holding the previous corpus state")
+
+    ex = sub.add_parser("export", help="Write a deployable bundle for a tune run; --verify replays it over HTTP")
+    ex.add_argument("--run", required=True)
+    ex.add_argument("--out", required=True)
+    ex.add_argument("--corpus", default=None)
+    ex.add_argument("--cache", default=".ragtuner-cache")
+    ex.add_argument("--verify", action="store_true")
+
+    mo = sub.add_parser("monitor", help="Analyze the API query log against the tuning baseline and propose fixes")
+    mo.add_argument("--log", required=True)
+    mo.add_argument("--run", required=True)
+    mo.add_argument("--corpus", default=None)
+    mo.add_argument("--window", type=int, default=500)
+    mo.add_argument("--candidates", default=None, help="Write low-confidence queries here for labeling")
+    mo.add_argument("--json", action="store_true")
+
     qp = sub.add_parser("query", help="Retrieve with an exported config")
     qp.add_argument("corpus_dir")
     qp.add_argument("--name", default=None)
@@ -113,6 +154,16 @@ def main(argv: list[str] | None = None) -> int:
             return _cmd_query(args)
         if args.command == "crossval":
             return _cmd_crossval(args)
+        if args.command == "serve":
+            return _cmd_serve(args)
+        if args.command == "mcp":
+            return _cmd_mcp(args)
+        if args.command == "sync":
+            return _cmd_sync(args)
+        if args.command == "export":
+            return _cmd_export(args)
+        if args.command == "monitor":
+            return _cmd_monitor(args)
     except (ValueError, FileNotFoundError, KeyError) as e:
         print(f"ragtuner: error: {e}", file=sys.stderr)
         return 1
@@ -249,6 +300,62 @@ def _cmd_crossval(args: argparse.Namespace) -> int:
     (out / "crossval.md").write_text(md + "\n", encoding="utf-8")
     (out / "crossval.json").write_text(json.dumps(rep.to_dict(), indent=2), encoding="utf-8")
     print(md)
+    return 0
+
+
+def _cmd_serve(args: argparse.Namespace) -> int:
+    from ragtuner.serve.http import make_server
+    from ragtuner.serve.runtime import Runtime
+
+    rt = Runtime(args.corpus_dir, args.config, cache_root=args.cache, query_log=args.query_log, name=args.name)
+    server = make_server(rt, args.host, args.port, cors_origin=args.cors_origin)
+    print(f"ragtuner serving {rt.config.key} on http://{args.host}:{server.server_address[1]} ({rt.last_reload['chunks']} chunks)", file=sys.stderr)
+    try:
+        server.serve_forever()
+    except KeyboardInterrupt:
+        pass
+    return 0
+
+
+def _cmd_mcp(args: argparse.Namespace) -> int:
+    from ragtuner.serve.mcp import MCPServer
+    from ragtuner.serve.runtime import Runtime
+
+    def factory() -> Runtime:
+        return Runtime(args.corpus_dir, args.config, cache_root=args.cache, query_log=args.query_log, name=args.name)
+
+    MCPServer(factory, tenant=args.tenant, principal=args.principal).serve()
+    return 0
+
+
+def _cmd_sync(args: argparse.Namespace) -> int:
+    from ragtuner.serve.runtime import Runtime
+
+    state_path = Path(args.state)
+    prev = json.loads(state_path.read_text()) if state_path.exists() else {}
+    rt = Runtime(args.corpus_dir, args.config, cache_root=args.cache, name=args.name, previous_state=prev)
+    state_path.write_text(json.dumps(rt.state, indent=2))
+    print(json.dumps(rt.last_reload, indent=2))
+    return 0
+
+
+def _cmd_export(args: argparse.Namespace) -> int:
+    from ragtuner.export import build_bundle, verify_bundle
+
+    info = build_bundle(args.run, args.out)
+    if args.verify:
+        if not args.corpus:
+            raise ValueError("--verify needs --corpus")
+        info["verify"] = verify_bundle(args.out, args.corpus, cache_root=args.cache)
+    print(json.dumps(info, indent=2))
+    return 0 if not args.verify or info["verify"]["identical"] else 3
+
+
+def _cmd_monitor(args: argparse.Namespace) -> int:
+    from ragtuner.monitor import monitor, to_markdown
+
+    m = monitor(args.log, args.run, corpus_dir=args.corpus, window=args.window, candidates_out=args.candidates)
+    print(json.dumps(m, indent=2) if args.json else to_markdown(m))
     return 0
 
 

@@ -60,6 +60,14 @@ class ModelPool:
     def __init__(self) -> None:
         self._embedders: dict[str, Embedder] = {}
         self._rerankers: dict[str, CrossEncoderReranker] = {}
+        self._llm_rewriter: Any = None
+
+    def llm_rewriter(self) -> Any:
+        if self._llm_rewriter is None:
+            from ragtuner.rewrite import LLMRewriter
+
+            self._llm_rewriter = LLMRewriter()
+        return self._llm_rewriter
 
     def embedder(self, name: str) -> Embedder:
         if name not in self._embedders:
@@ -118,7 +126,8 @@ class RetrievalIndex:
         self._embedder: Embedder | None = None
         t = time.time()
         texts = [c.index_text for c in chunks]
-        if config.retrieval in ("sparse", "hybrid"):
+        self._texts = texts
+        if config.retrieval in ("sparse", "hybrid") or config.query_rewrite == "prf":
             self._bm25 = BM25Index(texts)
         if config.retrieval in ("dense", "hybrid"):
             assert config.embedder
@@ -169,6 +178,20 @@ class RetrievalIndex:
             return better_rag_search(self._better, query, n, allowed, self._by_id)
         raise ValueError(mode)
 
+    def rewrite(self, query: str) -> str:
+        """The first-stage query. The reranker and the scoring still use `query`."""
+        mode = self.config.query_rewrite
+        if mode is None:
+            return query
+        if mode == "prf":
+            from ragtuner.rewrite import prf_expand
+
+            assert self._bm25 is not None
+            return prf_expand(query, self._bm25, self._texts)
+        if mode == "llm":
+            return self.pool.llm_rewriter()(query)
+        raise ValueError(mode)
+
     def _query_vec(self, query: str) -> np.ndarray:
         assert self._embedder
         if self.emb_cache is not None:
@@ -181,7 +204,8 @@ class RetrievalIndex:
 
         k = k or self.config.top_k
         n = max(candidates or self.config.candidates, k)
-        cands = self.candidates(query, n, allowed_mask(self.chunks, access))
+        first_stage = self.rewrite(query)
+        cands = self.candidates(first_stage, n, allowed_mask(self.chunks, access))
         if self._reranker and cands:
             head, tail = cands[: self.config.rerank_depth], cands[self.config.rerank_depth :]
             scores = self._reranker.rerank(query, [self.chunks[i].index_text for i, _ in head])

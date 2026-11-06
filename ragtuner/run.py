@@ -103,6 +103,11 @@ def space_preset(name: str, *, parsers: list[str] | None = None) -> Space:
                      embedders=embedders[:2], retrievals=["sparse", "dense", "hybrid"], rerankers=[None])
     if name == "phase1":
         return Space(parsers=parsers or default_parsers, embedders=embedders)
+    if name == "phase2":
+        from ragtuner.llm import provider
+
+        rewrites: list[str | None] = [None, "prf"] + (["llm"] if provider() and os.environ.get("RAGTUNER_LLM_REWRITE") == "1" else [])
+        return Space(parsers=parsers or default_parsers, embedders=embedders, rewrites=rewrites)
     raise ValueError(f"unknown space preset {name!r}")
 
 
@@ -175,6 +180,13 @@ def tune(corpus: Corpus, evalset: EvalSet, *, out: Path, cache_root: Path, space
     else:
         notes.append("Generation judge skipped: set RAGTUNER_JUDGE=1 with LLM credentials to run it.")
     paths = write_report(out, rep, evalset, fails, dfails, gate=gate, notes=notes, regret=reg)
+    # record corpus file hashes so `ragtuner monitor` can tell when the index has gone stale
+    from ragtuner.serve.runtime import corpus_state
+
+    man_path = out / "manifest.json"
+    man = json.loads(man_path.read_text())
+    man["corpus_state"] = corpus_state(corpus.files)
+    man_path.write_text(json.dumps(man, indent=2))
     (out / "search.json").write_text(json.dumps(rep.to_dict(), indent=2, default=str))
     (out / "winner_results.json").write_text(json.dumps([r.to_dict() for r in rep.winner.results], indent=2, default=str))
     (out / "default_results.json").write_text(json.dumps([r.to_dict() for r in rep.default.results], indent=2, default=str))

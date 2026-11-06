@@ -49,6 +49,7 @@ class Space:
     embedders: list[str | None] = field(default_factory=lambda: [None, "bge-small"])
     retrievals: list[str] = field(default_factory=lambda: ["sparse", "better-rag", "dense", "hybrid"])
     rerankers: list[str | None] = field(default_factory=lambda: [None, "minilm"])
+    rewrites: list[str | None] = field(default_factory=lambda: [None])
     top_k: int = 5
 
     def stage1(self) -> list[RagConfig]:
@@ -63,9 +64,9 @@ class Space:
         """Retrieval mode and reranker variants for one (parser, chunker, embedder) triple."""
         modes = [m for m in self.retrievals if (m in ("dense", "hybrid")) == bool(base.embedder)]
         out = []
-        for m, r in itertools.product(modes, self.rerankers):
+        for m, r, q in itertools.product(modes, self.rerankers, self.rewrites):
             out.append(RagConfig(parser=base.parser, chunker=base.chunker, chunk_params=dict(base.chunk_params), embedder=base.embedder,
-                                 retrieval=m, reranker=r, top_k=self.top_k, candidates=CANDIDATES))
+                                 retrieval=m, reranker=r, top_k=self.top_k, candidates=CANDIDATES, query_rewrite=q))
         return out
 
     def grid(self) -> list[RagConfig]:
@@ -282,7 +283,7 @@ def regret(staged: SearchReport, grid: SearchReport, metric: str = PRIMARY_METRI
 
 def _space_dict(space: Space) -> dict[str, Any]:
     return {"parsers": space.parsers, "chunkers": [f"{c}:{p}" for c, p in space.chunkers], "embedders": space.embedders,
-            "retrievals": space.retrievals, "rerankers": space.rerankers, "top_k": space.top_k,
+            "retrievals": space.retrievals, "rerankers": space.rerankers, "rewrites": space.rewrites, "top_k": space.top_k,
             "stage1_configs": len(space.stage1()), "grid_configs": len(space.grid())}
 
 
