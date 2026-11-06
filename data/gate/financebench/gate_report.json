@@ -1,0 +1,23 @@
+{
+  "threshold": 0.8,
+  "per_parser": {
+    "pymupdf-text": {
+      "pages": 4,
+      "gold_cells": 106,
+      "pred_cells": 0,
+      "pred_tables": 0,
+      "cell_precision": 0.0,
+      "cell_recall": 0.0,
+      "cell_f1": 0.0
+    },
+    "docling": {
+      "pages": 4,
+      "gold_cells": 106,
+      "pred_cells": 102,
+      "pred_tables": 5,
+      "cell_precision": 0.9215686274509803,
+      "cell_recall": 0.8867924528301887,
+      "cell_f1": 0.9038461538461539
+    }
+  }
+}
