@@ -31,7 +31,9 @@ def provider() -> str | None:
     return None
 
 
-def _post_json(url: str, payload: dict, headers: dict, *, timeout: int = 300, retries: int = 4) -> dict:
+def _post_json(url: str, payload: dict, headers: dict, *, timeout: int = 300, retries: int = 6, max_wait: float = 60.0) -> dict:
+    """POST with retries. Rate limits (429) back off exponentially up to max_wait seconds,
+    honoring Retry-After when the server sends it."""
     data = json.dumps(payload).encode()
     for attempt in range(retries + 1):
         req = urllib.request.Request(url, data=data, headers={"Content-Type": "application/json", **headers})
@@ -40,7 +42,9 @@ def _post_json(url: str, payload: dict, headers: dict, *, timeout: int = 300, re
                 return json.load(resp)
         except urllib.error.HTTPError as e:
             if e.code in (429, 500, 502, 503, 504) and attempt < retries:
-                time.sleep(2 ** (attempt + 1))
+                retry_after = e.headers.get("Retry-After") if e.headers else None
+                wait = float(retry_after) if retry_after and retry_after.replace(".", "", 1).isdigit() else 2 ** (attempt + 1)
+                time.sleep(min(wait, max_wait))
                 continue
             raise
         except (urllib.error.URLError, TimeoutError):
@@ -52,13 +56,15 @@ def _post_json(url: str, payload: dict, headers: dict, *, timeout: int = 300, re
 
 
 def openrouter_caller(model: str = DEFAULT_MODEL, effort: str = "medium", max_tokens: int = 4000) -> Caller:
+    """`model` may be a comma-separated list: OpenRouter tries them in order (fallback routing)."""
     key = os.environ.get("OPENROUTER_API_KEY", "")
-    or_model = OPENROUTER_MODELS.get(model, model)
+    models = [OPENROUTER_MODELS.get(m.strip(), m.strip()) for m in model.split(",") if m.strip()]
+    route: dict = {"model": models[0]} if len(models) == 1 else {"models": models}
 
     def call(system: str, user: str) -> str:
         out = _post_json(
             "https://openrouter.ai/api/v1/chat/completions",
-            {"model": or_model, "max_tokens": max_tokens, "reasoning": {"effort": effort}, "usage": {"include": True},
+            {**route, "max_tokens": max_tokens, "reasoning": {"effort": effort}, "usage": {"include": True},
              "messages": [{"role": "system", "content": system}, {"role": "user", "content": user}]},
             {"Authorization": f"Bearer {key}", "X-Title": "ragtuner"},
         )
@@ -70,6 +76,8 @@ def openrouter_caller(model: str = DEFAULT_MODEL, effort: str = "medium", max_to
         if "error" in out:
             USAGE["errors"] += 1
             raise RuntimeError(f"openrouter error: {out['error']}")
+        USAGE.setdefault("models", {})
+        USAGE["models"][out.get("model", "?")] = USAGE["models"].get(out.get("model", "?"), 0) + 1
         choice = out["choices"][0]
         if choice.get("finish_reason") in ("content_filter",):
             raise RuntimeError("model refused")
