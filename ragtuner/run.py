@@ -33,6 +33,15 @@ def load_corpus(name: str, root: str | Path) -> Corpus:
     if ids.exists():
         mapping = json.loads(ids.read_text())
         corpus.doc_ids = {str(docs_dir / fname): doc_id for fname, doc_id in mapping.items()}
+    acl_path = root / "acl.json"
+    if acl_path.exists():
+        from ragtuner.access import load_acl
+        from ragtuner.parse.base import doc_id_for
+
+        raw = load_acl(acl_path)
+        # keys may be file names or doc ids; resolve file names to the doc id the parser assigns
+        by_name = {f.name: (corpus.doc_id_for(f) or doc_id_for(f)) for f in corpus.files}
+        corpus.acl = {by_name.get(k, k): v for k, v in raw.items()}
     return corpus
 
 

@@ -8,6 +8,7 @@ from __future__ import annotations
 import math
 import re
 from collections import Counter
+from typing import Sequence
 
 _TOK = re.compile(r"[a-z0-9]+")
 _STOP = {
@@ -43,13 +44,15 @@ class BM25Index:
             for t, f in c.items():
                 self.postings.setdefault(t, []).append((i, f))
 
-    def search(self, query: str, k: int) -> list[tuple[int, float]]:
+    def search(self, query: str, k: int, allowed: "Sequence[bool] | None" = None) -> list[tuple[int, float]]:
         scores: dict[int, float] = {}
         for t in set(tokenize(query)):
             idf = self.idf.get(t)
             if idf is None:
                 continue
             for i, f in self.postings[t]:
+                if allowed is not None and not allowed[i]:
+                    continue
                 denom = f + self.k1 * (1 - self.b + self.b * self.lengths[i] / max(self.avgdl, 1e-9))
                 scores[i] = scores.get(i, 0.0) + idf * f * (self.k1 + 1) / denom
         return sorted(scores.items(), key=lambda x: -x[1])[:k]

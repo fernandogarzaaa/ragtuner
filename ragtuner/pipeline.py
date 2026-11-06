@@ -77,6 +77,7 @@ class Corpus:
     name: str
     files: list[Path]
     doc_ids: dict[str, str] = field(default_factory=dict)  # file path -> doc id override
+    acl: dict[str, Any] = field(default_factory=dict)  # doc id -> DocACL (see ragtuner.access)
 
     @classmethod
     def from_dir(cls, name: str, root: str | Path, suffixes: Iterable[str] = (".pdf", ".md", ".txt")) -> "Corpus":
@@ -146,26 +147,33 @@ class RetrievalIndex:
         stats.index_seconds += time.time() - t
         stats.chunks = len(chunks)
 
-    def candidates(self, query: str, n: int) -> list[tuple[int, float]]:
+    def candidates(self, query: str, n: int, allowed: np.ndarray | None = None) -> list[tuple[int, float]]:
+        """Top-n candidate chunk indices. `allowed` is a pre-filter mask applied inside each
+        index before ranking, so access control never starves the result list."""
         mode = self.config.retrieval
         if mode == "sparse":
             assert self._bm25
-            return self._bm25.search(query, n)
+            return self._bm25.search(query, n, allowed)
         if mode == "dense":
             assert self._dense and self._embedder
-            return self._dense.search(self._query_vec(query), n)
+            return self._dense.search(self._query_vec(query), n, allowed)
         if mode == "hybrid":
             assert self._bm25 and self._dense
-            s = [i for i, _ in self._bm25.search(query, n)]
-            d = [i for i, _ in self._dense.search(self._query_vec(query), n)]
+            s = [i for i, _ in self._bm25.search(query, n, allowed)]
+            d = [i for i, _ in self._dense.search(self._query_vec(query), n, allowed)]
             return rrf([s, d], limit=n)
         if mode == "better-rag":
             assert self._better
+            # BETTER-RAG has no native filter: rank everything, then filter before cutting to n.
+            depth = len(self.chunks) if allowed is not None else n
             try:
-                hits = self._better.search(query, top_k=n)
+                hits = self._better.search(query, top_k=max(depth, 1))
             except ValueError:
                 return []
-            return [(self._by_id[h.document_id], h.score) for h in hits]
+            ranked = [(self._by_id[h.document_id], h.score) for h in hits]
+            if allowed is not None:
+                ranked = [(i, sc) for i, sc in ranked if allowed[i]]
+            return ranked[:n]
         raise ValueError(mode)
 
     def _query_vec(self, query: str) -> np.ndarray:
@@ -174,10 +182,13 @@ class RetrievalIndex:
             return self.emb_cache.embed(self._embedder, [query], kind="query")[0]
         return self._embedder.embed([query], kind="query")[0]
 
-    def retrieve(self, query: str, *, k: int | None = None, candidates: int | None = None) -> list[Hit]:
+    def retrieve(self, query: str, *, k: int | None = None, candidates: int | None = None, access: Any = None) -> list[Hit]:
+        """access: a ragtuner.access.Access, or None for unrestricted (evaluation) retrieval."""
+        from ragtuner.access import allowed_mask
+
         k = k or self.config.top_k
         n = max(candidates or self.config.candidates, k)
-        cands = self.candidates(query, n)
+        cands = self.candidates(query, n, allowed_mask(self.chunks, access))
         if self._reranker and cands:
             scores = self._reranker.rerank(query, [self.chunks[i].index_text for i, _ in cands])
             cands = sorted(zip((i for i, _ in cands), scores), key=lambda x: -x[1])
@@ -188,12 +199,16 @@ class RetrievalIndex:
         return out
 
 
-def chunk_docs(docs: list[ParsedDocument], config: RagConfig, stats: BuildStats | None = None) -> list[Chunk]:
+def chunk_docs(docs: list[ParsedDocument], config: RagConfig, stats: BuildStats | None = None, acl: dict[str, Any] | None = None) -> list[Chunk]:
     t = time.time()
     chunker = get_chunker(config.chunker, **config.chunk_params)
     out: list[Chunk] = []
     for d in docs:
         out.extend(chunker.chunk(d))
+    if acl:
+        from ragtuner.access import apply_acl
+
+        out = apply_acl(out, acl)
     if stats is not None:
         stats.chunk_seconds += time.time() - t
     return out
@@ -209,6 +224,6 @@ def build_index(corpus: Corpus, config: RagConfig, *, cache_root: str | Path = "
         docs = parse_corpus(corpus, config.parser, parse_cache, stats)
     else:
         stats.docs = len(docs)
-    chunks = chunk_docs(docs, config, stats)
+    chunks = chunk_docs(docs, config, stats, acl=corpus.acl)
     index = RetrievalIndex(config, chunks, pool=pool, emb_cache=emb_cache, stats=stats)
     return index, stats
