@@ -151,6 +151,29 @@ are visible in the data: it still overrates plain BM25 (its second-ranked family
 synthetic, is 0.217 on real questions), and 23 questions cannot separate the top configs
 (three tie at 0.870; one question is worth 4.3 points).
 
+### Extended to 51 LLM questions
+
+Artifacts: `runs/financebench_crossval_llm2/`. After the free tier's daily reset, the
+generator resumed from its checkpoint and added 28 questions (48 calls, all served by
+Nemotron 3 Ultra; 2 dropped). Same 30 real questions, same 64 configs.
+
+| selection set | questions | Spearman vs real ranking | real recall@5 of its pick |
+|---|---|---|---|
+| heuristic | 85 | -0.121 | 0.267 |
+| free LLM | 23 | +0.340 | 0.367 |
+| free LLM, extended | 51 | +0.351 | 0.300 |
+| frozen default (no tuning) | | | 0.367 |
+
+The agreement held as the set doubled, so +0.35 looks like a property of this generator
+rather than noise. At the family level the 51 questions now rank hybrid plus reranker
+(0.637) and dense plus reranker (0.618) first, which are also the two best families on
+real questions (0.329 and 0.362). The single pick did not improve: the reranked
+BETTER-RAG arm topped the synthetic set by one question (0.765 against 0.745) and scores
+0.300 on real questions. With a correlation around 0.35, selecting the one top config is
+fragile; this is the strongest argument for a selection rule that is robust to ranking
+noise (for example, choosing the best family first, or requiring a margin over the
+default before switching away from it) before spending on a larger Claude-written set.
+
 ## Query rewriting on real questions
 
 `runs/prf_check.json`. Each of the 8 configs with the best real recall@5 on FinanceBench was
@@ -191,8 +214,9 @@ sandbox CA; the bundle's Dockerfile itself is unchanged by that.
    (rho = -0.12), so selecting on it is worse than not tuning. This is a property of the
    offline generator, which copies rare words from the evidence, not of the search,
    which recovers the grid optimum within about one point (IRS regret 0.011).
-   Replacing it with an LLM generator moved the correlation to +0.34 and turned a
-   10-point loss into a tie with the default, on only 23 free-model questions.
+   Replacing it with an LLM generator moved the correlation to about +0.35, stable from
+   23 to 51 free-model questions, but the single top pick still does not beat the
+   default (a tie at 23 questions, 6.7 points worse at 51).
 2. **There is headroom over the default, but 30 real questions cannot find it reliably.**
    The best config beats the default by 10 points on the full real set, but that is
    selected on the test questions. Selecting on 15 real questions and testing on the
