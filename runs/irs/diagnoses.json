@@ -1,0 +1,22 @@
+[
+  {
+    "stage": "rank",
+    "attribute": "block_type",
+    "value": "paragraph",
+    "misses": 6,
+    "questions_with_value": 63,
+    "total_misses": 6,
+    "miss_share": 1.0,
+    "base_share": 0.7,
+    "lift": 1.4285714285714286,
+    "fix": "Relevant chunks are retrieved but ranked below top-k: add a cross-encoder reranker, or lower the candidate pool noise with hybrid fusion.",
+    "question_ids": [
+      "h-0d82d5874d",
+      "h-1ba5208273",
+      "h-352b15c929",
+      "h-831539ad18",
+      "h-931c6eeb9e",
+      "h-9e0bcd1539"
+    ]
+  }
+]
